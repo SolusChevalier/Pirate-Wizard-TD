@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace _Project.Map.Scripts
@@ -14,8 +15,10 @@ namespace _Project.Map.Scripts
 
         private void Start()
         {
+            Console.WriteLine("Start : " + settings != null);
             if (settings != null && settings.GenerateOnStart)
             {
+                Console.WriteLine("Generating");
                 Generate();
             }
         }
@@ -28,7 +31,7 @@ namespace _Project.Map.Scripts
             }
         }
 
-        #endregion
+        #endregion Lifecycle
 
         /// <summary>
         /// Method that creates a new map based on the settings data.
@@ -56,7 +59,7 @@ namespace _Project.Map.Scripts
                     _heightMap[y, x] = Mathf.Clamp01(noiseMap[y, x] - falloffMap[y, x]);
                 }
             }
-
+            Console.WriteLine("drawing");
             Draw();
         }
 
@@ -72,7 +75,10 @@ namespace _Project.Map.Scripts
 
             var size = _heightMap.GetLength(0);
             var terrainData = terrain.terrainData;
-
+            Console.WriteLine("terrainData: " + terrainData);
+            Console.WriteLine("terrain.materialTemplate: " + terrain.materialTemplate != null);
+            Console.WriteLine("terrain.materialTemplate.mainTexture: " + terrain.materialTemplate.mainTexture != null);
+            Console.WriteLine("settings.Mode.Equals(DrawMode.Color): " + settings.Mode.Equals(DrawMode.Color));
             terrain.materialTemplate.mainTexture = settings.Mode.Equals(DrawMode.Color)
                 ? GetColorTextureFromHeightMap(_heightMap)
                 : GetTextureFromHeightMap(_heightMap);
@@ -167,7 +173,7 @@ namespace _Project.Map.Scripts
             return texture;
         }
 
-        #endregion
+        #endregion Private methods
 
         private float[,] _heightMap;
 

@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 037f9507f11bbb24bb7b1e9f30549e49, type: 3}
-  m_Name: Map Settings
+  m_Name: settings
   m_EditorClassIdentifier: 
-  generateOnStart: 0
+  generateOnStart: 1
   update: 0
-  size: 512
-  octaves: 16
+  size: 244
+  octaves: 15
   depth: 35
-  persistance: 0.5
+  persistance: 0.359
   lacunarity: 2
-  noiseScale: 50
+  noiseScale: 60
   noiseOffset: {x: 0, y: 0}
-  seed: 
+  seed: default
   heightCurve:
     serializedVersion: 2
     m_Curve:
@@ -34,6 +34,33 @@ MonoBehaviour:
       weightedMode: 0
       inWeight: 0
       outWeight: 0
+    - serializedVersion: 3
+      time: 0.2118353
+      value: 0.073704354
+      inSlope: 0.38759956
+      outSlope: 0.38759956
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.26999098
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.40693924
+      value: 0.18715414
+      inSlope: 1.7847761
+      outSlope: 1.7847761
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.24333856
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.92398566
+      value: 0.97366303
+      inSlope: 0.67026293
+      outSlope: 0.67026293
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
     - serializedVersion: 3
       time: 1
       value: 1
