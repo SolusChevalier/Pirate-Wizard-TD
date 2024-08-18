@@ -11,31 +11,17 @@ public class SceneNav : MonoBehaviour
     public double mediumDifficulty = 0.2;
     public double hardDifficulty = 0.3;
 
-    public enum Scenes
-    {
-        MainMenu,
-        Red1Blue2,
-        Red2Blue1,
-        AIBattle,
-        RedWin,
-        BlueWin,
-        AIWin,
-        AILose
-    }
-
     public enum UICanvas
     {
         MainMenuCanvas,
         GameModeSelectCanvas,
-        SinglePlayerCanvas,
-        MultiPlayerDiffSelectCanvas,
+        SettingsCanvas,
     }
 
     public float fadeTime = 1.0f;
     public GameObject MainMenuCanvas;
     public GameObject GameModeSelectCanvas;
-    public GameObject SinglePlayerCanvas;
-    public GameObject MultiPlayerDiffSelectCanvas;
+    public GameObject SettingsCanvas;
     public Dictionary<UICanvas, GameObject> canvasDict;
     public Dictionary<GameObject, UICanvas> CanvasGameObjDict;
     public GameObject currentCanvas;
@@ -48,16 +34,14 @@ public class SceneNav : MonoBehaviour
         {
             { UICanvas.MainMenuCanvas, MainMenuCanvas },
             { UICanvas.GameModeSelectCanvas, GameModeSelectCanvas },
-            { UICanvas.SinglePlayerCanvas, SinglePlayerCanvas },
-            { UICanvas.MultiPlayerDiffSelectCanvas, MultiPlayerDiffSelectCanvas },
+            { UICanvas.SettingsCanvas, SettingsCanvas }
         };
 
         CanvasGameObjDict = new Dictionary<GameObject, UICanvas>
         {
             { MainMenuCanvas, UICanvas.MainMenuCanvas },
             { GameModeSelectCanvas, UICanvas.GameModeSelectCanvas },
-            { SinglePlayerCanvas, UICanvas.SinglePlayerCanvas },
-            { MultiPlayerDiffSelectCanvas, UICanvas.MultiPlayerDiffSelectCanvas },
+            { SettingsCanvas, UICanvas.SettingsCanvas }
         };
 
         foreach (var item in canvasDict)
@@ -107,9 +91,9 @@ public class SceneNav : MonoBehaviour
         StartCoroutine(FadeInCanvas(GameModeSelectCanvas));
     }
 
-    public void loadSinglePlayerCanvas()
+    public void loadSettingsCanvas()
     {
-        if (currentCanvas == SinglePlayerCanvas)
+        if (currentCanvas == SettingsCanvas)
         {
             return;
         }
@@ -119,28 +103,10 @@ public class SceneNav : MonoBehaviour
             StartCoroutine(FadeOutCanvas(currentCanvas));
         }
 
-        currentCanvas = SinglePlayerCanvas;
+        currentCanvas = SettingsCanvas;
         //currentCanvas.SetActive(true);
         //SinglePlayerCanvas.GetComponent<CanvasFade>().FadeInCanvas(fadeTime);
-        StartCoroutine(FadeInCanvas(SinglePlayerCanvas));
-    }
-
-    public void loadMultiPlayerDiffSelectCanvas()
-    {
-        if (currentCanvas == MultiPlayerDiffSelectCanvas)
-        {
-            return;
-        }
-        if (currentCanvas != null)
-        {
-            currentCanvas.GetComponent<CanvasFade>().FadeOutCanvas(fadeTime);
-            StartCoroutine(FadeOutCanvas(currentCanvas));
-        }
-
-        currentCanvas = MultiPlayerDiffSelectCanvas;
-        StartCoroutine(FadeInCanvas(MultiPlayerDiffSelectCanvas));
-        //currentCanvas.SetActive(true);
-        //MultiPlayerDiffSelectCanvas.GetComponent<CanvasFade>().FadeInCanvas(fadeTime);
+        StartCoroutine(FadeInCanvas(SettingsCanvas));
     }
 
     public void LoadCanvas(UICanvas canvas)
@@ -157,39 +123,14 @@ public class SceneNav : MonoBehaviour
         //canvasDict[canvas].gameObject.SetActive(true);
     }
 
-    public void StartRandom()
+    public void StartGame()
     {
-        var random = new System.Random();
-        var scene = random.Next(1, 100);
-        if (scene % 2 == 0)
-        {
-            LoadScene(Scenes.Red1Blue2.ToString());
-        }
-        else
-        {
-            LoadScene(Scenes.Red2Blue1.ToString());
-        }
-    }
-
-    public void StartRed()
-    {
-        LoadScene(Scenes.Red1Blue2.ToString());
-    }
-
-    public void StartBlue()
-    {
-        LoadScene(Scenes.Red2Blue1.ToString());
-    }
-
-    public void LoadScene(string sceneName)
-    {
-        SceneManager.LoadScene(sceneName);
+        GameScenes.LoadScene(GameScenes.Scenes.Game);
     }
 
     public void ExitApp()
     {
-        Application.Quit();
-        //UnityEditor.EditorApplication.ExitPlaymode();
+        GameScenes.ExitApp();
     }
 
     #endregion UNITY METHODS

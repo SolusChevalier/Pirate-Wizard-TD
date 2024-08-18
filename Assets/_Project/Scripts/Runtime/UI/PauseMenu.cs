@@ -52,7 +52,7 @@ public class PauseMenu : MonoBehaviour
     public void LoadMenu()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");
+        GameScenes.LoadScene("MainMenu");
     }
 
     public void Retry()
@@ -60,18 +60,12 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         var random = new System.Random();
         var scene = random.Next(1, 100);
-        if (scene % 2 == 0)
-        {
-            SceneManager.LoadScene(Scenes.Red1Blue2.ToString());
-        }
-        else
-        {
-            SceneManager.LoadScene(Scenes.Red2Blue1.ToString());
-        }
+
+        SceneManager.LoadScene("Game");
     }
 
     public void QuitGame()
     {
-        Application.Quit();
+        GameScenes.ExitApp();
     }
 }
