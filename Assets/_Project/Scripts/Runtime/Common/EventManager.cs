@@ -8,4 +8,5 @@ public static class EventManager
     public static Action OnGameEnded;
     public static Action NextTurn;
     public static Action<int> PlayerWin;
+    public static Action<Tile> OnTileClicked;
 }
