@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEditor.Playables;
 using UnityEngine;
 
@@ -9,22 +10,24 @@ public class MapGenerator : MonoBehaviour
 {
     #region FIELDS
 
-    public Vector2 mapSize;
+    public Vector2 mapSize = new Vector2(10, 10);
 
     //public GameObject MapContainer;
     public GameObject[] TilePrefabs;
 
     public GameObject obstaclePrefab;
     public GameObject EmptySpawnPrefab;
+    //public int[,] ObsMap;
 
     [Range(0, 1)]
     public float obstaclePercent;
 
     private int _NumberOfTilePrefabs => TilePrefabs.Length;
-    public List<Coord> allTileCoords;
-    public Queue<Coord> shuffledTileCoords;
+    public List<CoordStruct> allTileCoords;
+    public Queue<CoordStruct> shuffledTileCoords;
     public int seed = 10;
-    public Coord mapCentre;
+    public CoordStruct mapCentre;
+    public bool autoUpdate;
 
     #endregion FIELDS
 
@@ -32,12 +35,22 @@ public class MapGenerator : MonoBehaviour
 
     private void Start()
     {
+        //ObsMap = new int[(int)mapSize.x, (int)mapSize.y];
         GenerateMap();
     }
 
     #endregion UNITY METHODS
 
     #region METHODS
+
+    public void ClearMap()
+    {
+        string holderName = "Generated Map";
+        if (transform.Find(holderName))
+        {
+            DestroyImmediate(transform.Find(holderName).gameObject);
+        }
+    }
 
     public void GenerateEmptyMap()
     {
@@ -61,16 +74,16 @@ public class MapGenerator : MonoBehaviour
 
     public void GenerateMap()
     {
-        allTileCoords = new List<Coord>();
+        allTileCoords = new List<CoordStruct>();
         for (int x = 0; x < mapSize.x; x++)
         {
             for (int y = 0; y < mapSize.y; y++)
             {
-                allTileCoords.Add(new Coord(x, y));
+                allTileCoords.Add(new CoordStruct(x, y));
             }
         }
-        shuffledTileCoords = new Queue<Coord>(Utility.ShuffleArray(allTileCoords.ToArray(), seed));
-        mapCentre = new Coord((int)mapSize.x / 2, (int)mapSize.y / 2);
+        shuffledTileCoords = new Queue<CoordStruct>(MapUtils.ShuffleArray(allTileCoords.ToArray(), seed));
+        mapCentre = new CoordStruct((int)mapSize.x / 2, (int)mapSize.y / 2);
 
         string holderName = "Generated Map";
         if (transform.Find(holderName))
@@ -85,7 +98,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int y = 0; y < mapSize.y; y++)
             {
-                Vector3 tilePosition = CoordToPosition(x, y);
+                Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, x, y);
                 GameObject newTile = Instantiate(TilePrefabs[0], tilePosition, Quaternion.identity);
                 newTile.transform.parent = mapHolder;
             }
@@ -98,29 +111,32 @@ public class MapGenerator : MonoBehaviour
 
         for (int i = 0; i < obstacleCount; i++)
         {
-            Coord randomCoord = GetRandomCoord();
+            CoordStruct randomCoord = GetRandomCoord();
             obstacleMap[randomCoord.x, randomCoord.y] = true;
             currentObstacleCount++;
 
             if (randomCoord != mapCentre && MapIsFullyAccessible(obstacleMap, currentObstacleCount))
             {
-                Vector3 obstaclePosition = CoordToPosition(randomCoord.x, randomCoord.y);
-
+                Vector3 obstaclePosition = CoordStruct.CoordToPosition(mapSize, randomCoord.x, randomCoord.y);
+                //ObsMap[randomCoord.x, randomCoord.y] = 1;
                 GameObject newObstacle = Instantiate(obstaclePrefab, obstaclePosition + Vector3.up * .5f, Quaternion.identity);
                 newObstacle.transform.parent = mapHolder;
             }
             else
             {
                 obstacleMap[randomCoord.x, randomCoord.y] = false;
+                //ObsMap[randomCoord.x, randomCoord.y] = 0;
                 currentObstacleCount--;
             }
         }
+
+        //printObsMap();
     }
 
     private bool MapIsFullyAccessible(bool[,] obstacleMap, int currentObstacleCount)
     {
         bool[,] mapFlags = new bool[obstacleMap.GetLength(0), obstacleMap.GetLength(1)];
-        Queue<Coord> queue = new Queue<Coord>();
+        Queue<CoordStruct> queue = new Queue<CoordStruct>();
         queue.Enqueue(mapCentre);
         mapFlags[mapCentre.x, mapCentre.y] = true;
 
@@ -128,7 +144,7 @@ public class MapGenerator : MonoBehaviour
 
         while (queue.Count > 0)
         {
-            Coord tile = queue.Dequeue();
+            CoordStruct tile = queue.Dequeue();
 
             for (int x = -1; x <= 1; x++)
             {
@@ -143,7 +159,7 @@ public class MapGenerator : MonoBehaviour
                             if (!mapFlags[neighbourX, neighbourY] && !obstacleMap[neighbourX, neighbourY])
                             {
                                 mapFlags[neighbourX, neighbourY] = true;
-                                queue.Enqueue(new Coord(neighbourX, neighbourY));
+                                queue.Enqueue(new CoordStruct(neighbourX, neighbourY));
                                 accessibleTileCount++;
                             }
                         }
@@ -156,57 +172,26 @@ public class MapGenerator : MonoBehaviour
         return targetAccessibleTileCount == accessibleTileCount;
     }
 
-    private Vector3 CoordToPosition(int x, int y)
+    public CoordStruct GetRandomCoord()
     {
-        return new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y);
-    }
-
-    public Coord GetRandomCoord()
-    {
-        Coord randomCoord = shuffledTileCoords.Dequeue();
+        CoordStruct randomCoord = shuffledTileCoords.Dequeue();
         shuffledTileCoords.Enqueue(randomCoord);
         return randomCoord;
     }
 
-    #endregion METHODS
-}
-
-public struct Coord
-{
-    public int x;
-    public int y;
-
-    public Coord(int _x, int _y)
+    /*public void printObsMap()
     {
-        x = _x;
-        y = _y;
-    }
-
-    public static bool operator ==(Coord c1, Coord c2)
-    {
-        return c1.x == c2.x && c1.y == c2.y;
-    }
-
-    public static bool operator !=(Coord c1, Coord c2)
-    {
-        return !(c1 == c2);
-    }
-}
-
-public static class Utility
-{
-    public static T[] ShuffleArray<T>(T[] array, int seed)
-    {
-        System.Random prng = new System.Random(seed);
-
-        for (int i = 0; i < array.Length - 1; i++)
+        string row = "";
+        for (int i = 0; i <= (int)mapSize.x - 1; i++)
         {
-            int randomIndex = prng.Next(i, array.Length);
-            T tempItem = array[randomIndex];
-            array[randomIndex] = array[i];
-            array[i] = tempItem;
+            row = "";
+            for (int j = 0; j <= (int)mapSize.y - 1; j++)
+            {
+                row += ObsMap[i, j] + " ";
+            }
+            Debug.Log(row);
         }
+    }*/
 
-        return array;
-    }
+    #endregion METHODS
 }

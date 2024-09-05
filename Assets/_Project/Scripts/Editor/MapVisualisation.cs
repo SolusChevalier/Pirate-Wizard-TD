@@ -8,10 +8,22 @@ public class MapVisualisation : Editor
 {
     public override void OnInspectorGUI()
     {
-        base.OnInspectorGUI();
-
+        bool autoUpdateFlag = true;
+        //base.OnInspectorGUI();
         MapGenerator map = target as MapGenerator;
-
-        map.GenerateMap();
+        if (DrawDefaultInspector())
+        {
+            if (map.autoUpdate)
+            {
+                map.GenerateMap();
+                autoUpdateFlag = true;
+            }
+            if (!map.autoUpdate && autoUpdateFlag)
+            {
+                map.ClearMap();
+                autoUpdateFlag = false;
+            }
+        }
+        //map.GenerateMap();
     }
 }

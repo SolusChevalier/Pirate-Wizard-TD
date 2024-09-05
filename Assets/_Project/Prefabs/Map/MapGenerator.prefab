@@ -44,6 +44,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a36fb80750b23374eae3545c79f12be8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 0
+  mapSize: {x: 10, y: 10}
+  TilePrefabs:
+  - {fileID: 7080887302694045176, guid: 5f4a1229ac111e14c85b20ae9bd52f61, type: 3}
+  obstaclePrefab: {fileID: 7080887302694045176, guid: 107ab4429987a7f4a8cd44e17c3d353d,
+    type: 3}
   EmptySpawnPrefab: {fileID: 7080887302694045176, guid: fa579c253a1131f4cac3a704b061365e,
     type: 3}
+  obstaclePercent: 0.26
+  allTileCoords: []
+  seed: 10
+  mapCentre:
+    x: 0
+    y: 0
