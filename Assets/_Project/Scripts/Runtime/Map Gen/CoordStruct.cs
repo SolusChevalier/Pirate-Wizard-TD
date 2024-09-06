@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
 
 [Serializable]
 public struct CoordStruct
@@ -21,7 +22,7 @@ public struct CoordStruct
         y = _y;
     }
 
-    public static Vector3 CoordToPosition(Vector2 mapSize, int x, int y)
+    public static Vector3 CoordToPosition(int2 mapSize, int x, int y)
     {
         return new Vector3(-mapSize.x / 2 + 0.5f + x, 0, -mapSize.y / 2 + 0.5f + y);
     }
@@ -36,6 +37,11 @@ public struct CoordStruct
     public override int GetHashCode()
     {
         return base.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+        return x + ", " + y;
     }
 
     public static bool operator ==(CoordStruct c1, CoordStruct c2)
