@@ -408,12 +408,12 @@ PrefabInstance:
     - target: {fileID: 5496057465863885702, guid: d16b2b4b76381f243b97062206963cda,
         type: 3}
       propertyPath: mapSize.x
-      value: 43
+      value: 42
       objectReference: {fileID: 0}
     - target: {fileID: 5496057465863885702, guid: d16b2b4b76381f243b97062206963cda,
         type: 3}
       propertyPath: mapSize.y
-      value: 43
+      value: 42
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

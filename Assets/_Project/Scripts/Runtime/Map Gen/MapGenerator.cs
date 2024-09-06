@@ -13,7 +13,8 @@ public class MapGenerator : MonoBehaviour
     #region FIELDS
 
     public int2 mapSize = new int2(10, 10);
-
+    public MapRepresentation MapRepresentation;
+    public WaveFunctionCollapse WFC;
     public GameObject[] TilePrefabs;
     private int[,] _obsMap;
     private int[,] _intMapRep;
@@ -26,7 +27,8 @@ public class MapGenerator : MonoBehaviour
     public float MinObs = 0.35f;
     public float MaxObs = 0.65f;
     private float obstaclePercent => UnityEngine.Random.Range(MinObs, MaxObs);
-    private int EvenOdd => ((mapSize.x % 2) == 0) ? 2 : 3;
+    private bool EvenOdd => ((mapSize.x % 2) == 0);
+    private int EvenOddBorder => ((mapSize.x % 2) == 0) ? 2 : 3;
     private int _NumberOfTilePrefabs => TilePrefabs.Length;
     public List<CoordStruct> allTileCoords;
     public Queue<CoordStruct> shuffledTileCoords;
@@ -34,6 +36,7 @@ public class MapGenerator : MonoBehaviour
     public CoordStruct mapCentre;
     private string holderName = "Generated Map";
     private Transform mapHolder;
+    private GameObject TowerObj;
 
     #endregion FIELDS
 
@@ -41,10 +44,12 @@ public class MapGenerator : MonoBehaviour
 
     private void Start()
     {
-        _obsMap = new int[mapSize.x, mapSize.y];
-        _intMapRep = new int[mapSize.x, mapSize.y];
-        MapRepresentation.Instance.InitMapRep(mapSize.x, mapSize.y);
+        MapRepresentation = GetComponent<MapRepresentation>();
+        MapRepresentation.InitMapRep(mapSize.x, mapSize.y, seed);
+        WFC = GetComponent<WaveFunctionCollapse>();
         GenerateMap();
+        //WFC.WaveFunctionCollapseStart();
+        SpawnTiles();
     }
 
     #endregion UNITY METHODS
@@ -61,6 +66,38 @@ public class MapGenerator : MonoBehaviour
         mapHolder.parent = transform;
     }
 
+    public void SpawnTiles()
+    {
+        for (int x = 0; x < mapSize.x; x++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, x, y);
+                GameObject newTile;
+                if (_intMapRep[x, y] == (int)TileType.Path)
+                {
+                    newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
+                    newTile.transform.parent = mapHolder;
+                }
+                else if (_intMapRep[x, y] == (int)TileType.PathBorder)
+                {
+                    newTile = Instantiate(TilePrefabs[2], tilePosition, Quaternion.identity);
+                    newTile.transform.parent = mapHolder;
+                }
+                else if (_intMapRep[x, y] == (int)TileType.WizardTower)
+                {
+                    newTile = Instantiate(TowerObj, tilePosition, Quaternion.identity);
+                    newTile.transform.parent = mapHolder;
+                }
+                else if (_intMapRep[x, y] == (int)TileType.Grass)
+                {
+                    newTile = Instantiate(TilePrefabs[0], tilePosition, Quaternion.identity);
+                    newTile.transform.parent = mapHolder;
+                }
+            }
+        }
+    }
+
     public void GenerateMap()
     {
         allTileCoords = new List<CoordStruct>();
@@ -72,7 +109,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
         shuffledTileCoords = new Queue<CoordStruct>(MapUtils.ShuffleArray(allTileCoords.ToArray(), seed));
-        GameObject TowerObj;
+
         if (mapSize.x % 2 == 0)
         {
             TowerObj = TowerEven;
@@ -81,23 +118,15 @@ public class MapGenerator : MonoBehaviour
         {
             TowerObj = TowerOdd;
         }
+        _obsMap = new int[mapSize.x, mapSize.y];
+        _intMapRep = new int[mapSize.x, mapSize.y];
 
         mapCentre = new CoordStruct((int)mapSize.x / 2, (int)mapSize.y / 2);
         Vector3 TowerPos = CoordStruct.CoordToPosition(mapSize, mapCentre.x, mapCentre.y);
-        GameObject newTower = Instantiate(TowerObj, TowerPos, Quaternion.identity);
+        //GameObject newTower = Instantiate(TowerObj, TowerPos, Quaternion.identity);
         _intMapRep[mapCentre.x, mapCentre.y] = (int)TileType.WizardTower;
 
         ClearMap();
-
-        /*for (int x = 0; x < mapSize.x; x++)
-        {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, x, y);
-                GameObject newTile = Instantiate(TilePrefabs[0], tilePosition, Quaternion.identity);
-                newTile.transform.parent = mapHolder;
-            }
-        }*/
 
         bool[,] obstacleMap = new bool[(int)mapSize.x, (int)mapSize.y];
         SquareGrid squareGrid = new SquareGrid((int)mapSize.x, (int)mapSize.y);
@@ -171,53 +200,99 @@ public class MapGenerator : MonoBehaviour
         CoordPort1 = PosssiblePort1Spawn[UnityEngine.Random.Range(0, PosssiblePort1Spawn.Count)];
         CoordPort2 = PosssiblePort2Spawn[UnityEngine.Random.Range(0, PosssiblePort2Spawn.Count)];
         CoordPort3 = PosssiblePort3Spawn[UnityEngine.Random.Range(0, PosssiblePort3Spawn.Count)];
+        List<CoordStruct> LastPath = new List<CoordStruct>();
+        List<CoordStruct> Path1 = new List<CoordStruct>();
+        List<CoordStruct> Path2 = new List<CoordStruct>();
+        List<CoordStruct> Path3 = new List<CoordStruct>();
         var astar = new AStarSearch(squareGrid, CoordPort1, mapCentre);
-        for (int i = 0; i < astar.path.Count - EvenOdd; i++)
+        for (int i = 0; i < astar.path.Count - EvenOddBorder; i++)
         {
-            Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar.path[i].x, astar.path[i].y);
+            //Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar.path[i].x, astar.path[i].y);
             //GameObject newObstacle = Instantiate(pathSphere, tilePosition + Vector3.up * .5f, Quaternion.identity);
             //newObstacle.transform.parent = mapHolder;
-            GameObject newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
-            newTile.transform.parent = mapHolder;
+            //GameObject newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
+            //newTile.transform.parent = mapHolder;
             _intMapRep[astar.path[i].x, astar.path[i].y] = (int)TileType.Path;
+            Path1.Add(astar.path[i]);
             if (i == 0)
             {
+                Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar.path[i].x, astar.path[i].y);
                 GameObject newPort = Instantiate(PortPrefab, tilePosition, Quaternion.Euler(0, 90, 0));
                 newPort.transform.parent = mapHolder;
+            }
+            if (i >= astar.path.Count - EvenOddBorder - 5)
+            {
+                LastPath.Add(astar.path[i]);
             }
         }
 
         var astar2 = new AStarSearch(squareGrid, CoordPort2, mapCentre);
-        for (int i = 0; i < astar2.path.Count - EvenOdd; i++)
+        for (int i = 0; i < astar2.path.Count - EvenOddBorder; i++)
         {
-            Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar2.path[i].x, astar2.path[i].y);
+            //Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar2.path[i].x, astar2.path[i].y);
             //GameObject newObstacle = Instantiate(pathSphere, tilePosition + Vector3.up * .5f, Quaternion.identity);
             //newObstacle.transform.parent = mapHolder;
-            GameObject newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
-            newTile.transform.parent = mapHolder;
+            //GameObject newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
+            //newTile.transform.parent = mapHolder;
             _intMapRep[astar2.path[i].x, astar2.path[i].y] = (int)TileType.Path;
+            Path2.Add(astar2.path[i]);
             if (i == 0)
             {
+                Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar2.path[i].x, astar2.path[i].y);
                 GameObject newPort = Instantiate(PortPrefab, tilePosition, Quaternion.identity);
                 newPort.transform.parent = mapHolder;
             }
+            if (i >= astar2.path.Count - EvenOddBorder - 5)
+            {
+                LastPath.Add(astar2.path[i]);
+            }
         }
         var astar3 = new AStarSearch(squareGrid, CoordPort3, mapCentre);
-        for (int i = 0; i < astar3.path.Count - EvenOdd; i++)
+        for (int i = 0; i < astar3.path.Count - EvenOddBorder; i++)
         {
-            Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar3.path[i].x, astar3.path[i].y);
+            //Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar3.path[i].x, astar3.path[i].y);
             //GameObject newObstacle = Instantiate(pathSphere, tilePosition + Vector3.up * .5f, Quaternion.identity);
             //newObstacle.transform.parent = mapHolder;
-            GameObject newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
+            //GameObject newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
+            //newTile.transform.parent = mapHolder;
             _intMapRep[astar3.path[i].x, astar3.path[i].y] = (int)TileType.Path;
-            newTile.transform.parent = mapHolder;
+            Path3.Add(astar3.path[i]);
             if (i == 0)
             {
+                Vector3 tilePosition = CoordStruct.CoordToPosition(mapSize, astar3.path[i].x, astar3.path[i].y);
                 GameObject newPort = Instantiate(PortPrefab, tilePosition, Quaternion.Euler(0, 180, 0));
                 newPort.transform.parent = mapHolder;
             }
+            if (i >= astar3.path.Count - EvenOddBorder - 5)
+            {
+                LastPath.Add(astar3.path[i]);
+            }
         }
-        MapRepresentation.Instance.ConvertIntMapToTileTypeMap(_intMapRep);
+        if (LastPath.Count > 0)
+        {
+            int count = 0;
+            for (int i = 0; i < LastPath.Count; i++)
+            {
+                for (int j = 0; j < LastPath.Count; j++)
+                {
+                    if (i != j)
+                    {
+                        if (LastPath[i] == LastPath[j])
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+            if (count > 0)
+            {
+                GenerateMap();
+                return;
+            }
+        }
+        SurroundPathWithBuildableTiles();
+        SurroundTowerWithGrass();
+        MapRepresentation.SaveMap(_intMapRep, Path1, Path2, Path3);
     }
 
     private bool MapIsFullyAccessible(bool[,] obstacleMap, int currentObstacleCount)
@@ -264,6 +339,52 @@ public class MapGenerator : MonoBehaviour
         CoordStruct randomCoord = shuffledTileCoords.Dequeue();
         shuffledTileCoords.Enqueue(randomCoord);
         return randomCoord;
+    }
+
+    private void SurroundPathWithBuildableTiles()
+    {
+        for (int i = 1; i < mapSize.x - 1; i++)
+        {
+            for (int j = 1; j < mapSize.y - 1; j++)
+            {
+                if (_intMapRep[i, j] == (int)TileType.Path)
+                {
+                    if (i + 1 <= mapSize.x & i - 1 >= 0 & j + 1 <= mapSize.y & j - 1 >= 0)
+                    {
+                        if (_intMapRep[i - 1, j] == (int)TileType.Empty)
+                        {
+                            _intMapRep[i - 1, j] = (int)TileType.PathBorder;
+                        }
+                        if (_intMapRep[i + 1, j] == (int)TileType.Empty)
+                        {
+                            _intMapRep[i + 1, j] = (int)TileType.PathBorder;
+                        }
+                        if (_intMapRep[i, j - 1] == (int)TileType.Empty)
+                        {
+                            _intMapRep[i, j - 1] = (int)TileType.PathBorder;
+                        }
+                        if (_intMapRep[i, j + 1] == (int)TileType.Empty)
+                        {
+                            _intMapRep[i, j + 1] = (int)TileType.PathBorder;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void SurroundTowerWithGrass()
+    {
+        for (int i = mapCentre.x - EvenOddBorder; i <= mapCentre.x + EvenOddBorder; i++)
+        {
+            for (int j = mapCentre.y - EvenOddBorder; j <= mapCentre.y + EvenOddBorder; j++)
+            {
+                if (_intMapRep[i, j] == (int)TileType.Empty | _intMapRep[i, j] == (int)TileType.PathBorder)
+                {
+                    _intMapRep[i, j] = (int)TileType.Grass;
+                }
+            }
+        }
     }
 
     #endregion METHODS

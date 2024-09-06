@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3833962084111469238}
   - component: {fileID: 5496057465863885702}
   - component: {fileID: 2501732368685907717}
+  - component: {fileID: 3433381187735370159}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -48,9 +49,12 @@ MonoBehaviour:
   mapSize:
     x: 10
     y: 10
+  MapRepresentation: {fileID: 2501732368685907717}
+  WFC: {fileID: 3433381187735370159}
   TilePrefabs:
   - {fileID: 7080887302694045176, guid: 5f4a1229ac111e14c85b20ae9bd52f61, type: 3}
   - {fileID: 7080887302694045176, guid: 64bb854a4ca99724e8911d48fcd90af6, type: 3}
+  - {fileID: 7080887302694045176, guid: 69a152c92264e3f4687658c115c4f637, type: 3}
   pathSphere: {fileID: 7080887302694045176, guid: 8765115795095e2458ae913b33322994,
     type: 3}
   obstaclePrefab: {fileID: 7080887302694045176, guid: 107ab4429987a7f4a8cd44e17c3d353d,
@@ -81,3 +85,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3123e60698329084c8512e476c36a541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Width: 0
+  Height: 0
+  Seed: 0
+--- !u!114 &3433381187735370159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990110855271304633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642fe332f5827964c86f649f86c65e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MapRepresentation: {fileID: 2501732368685907717}
