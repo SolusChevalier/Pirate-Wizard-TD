@@ -8,7 +8,8 @@ public class Tile : MonoBehaviour
     #region FIELDS
 
     public TileType type;
-    public Vector2Int position;
+    public CoordStruct coord;
+    public Transform TopSpawnPoint => GetTransformInChildrenWithTag("TopSpawnPoint");
     public GameObject _tileObject => gameObject;
     public Transform SideA => GetTransformInChildrenWithTag("TileSideA");
     public Transform SideB => GetTransformInChildrenWithTag("TileSideB");

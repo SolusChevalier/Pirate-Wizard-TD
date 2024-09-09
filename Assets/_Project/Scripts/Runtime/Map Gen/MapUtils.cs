@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using Unity.Mathematics;
 
 public static class MapUtils
 {
@@ -17,5 +19,72 @@ public static class MapUtils
         }
 
         return array;
+    }
+
+    public static T[,] Shuffle2DArray<T>(T[,] array, int seed)
+    {
+        System.Random prng = new System.Random(seed);
+
+        for (int i = 0; i < array.GetLength(0); i++)
+        {
+            for (int j = 0; j < array.GetLength(1); j++)
+            {
+                int randomIndexX = prng.Next(i, array.GetLength(0));
+                int randomIndexY = prng.Next(j, array.GetLength(1));
+                T tempItem = array[randomIndexX, randomIndexY];
+                array[randomIndexX, randomIndexY] = array[i, j];
+                array[i, j] = tempItem;
+            }
+        }
+
+        return array;
+    }
+
+    public static bool IsInMap(int x, int y)
+    {
+        return x >= 0 && x < MapRepresentation.Width && y >= 0 && y < MapRepresentation.Height;
+    }
+
+    public static List<int2> GetNeighbors(int x, int y)
+    {
+        List<int2> neighbors = new List<int2>();
+        if (IsInMap(x, y + 1))
+        {
+            int2 Up = new int2(x, y + 1);
+            neighbors.Add(Up);
+        }
+        if (IsInMap(x + 1, y))
+        {
+            int2 Right = new int2(x + 1, y);
+            neighbors.Add(Right);
+        }
+        if (IsInMap(x, y - 1))
+        {
+            int2 Down = new int2(x, y - 1);
+            neighbors.Add(Down);
+        }
+        if (IsInMap(x - 1, y))
+        {
+            int2 Left = new int2(x - 1, y);
+            neighbors.Add(Left);
+        }
+        return neighbors;
+    }
+
+    public static float CalculateDistance(int x1, int y1, int x2, int y2)
+    {
+        float xDistance = Mathf.Abs(x1 - x2);
+        float yDistance = Mathf.Abs(y1 - y2);
+
+        return xDistance + yDistance;
+    }
+
+    public static float CalculateHeuristic(int x1, int y1)
+    {
+        float xDistance = Mathf.Abs(x1 - MapRepresentation.Width / 2);
+        float yDistance = Mathf.Abs(y1 - MapRepresentation.Height / 2);
+        float dist = Mathf.Sqrt(xDistance * xDistance + yDistance * yDistance);
+
+        return dist;
     }
 }

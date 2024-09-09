@@ -10,6 +10,9 @@ TagManager:
   - TileSideB
   - TileSideC
   - TileSideD
+  - Defender
+  - Goblin
+  - BorderTile
   layers:
   - Default
   - TransparentFX

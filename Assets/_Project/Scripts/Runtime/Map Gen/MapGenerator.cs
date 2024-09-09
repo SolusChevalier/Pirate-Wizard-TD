@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.VisualScripting;
@@ -14,8 +15,10 @@ public class MapGenerator : MonoBehaviour
 
     public int2 mapSize = new int2(10, 10);
     public MapRepresentation MapRepresentation;
+    public TileManager tileManager;
     public WaveFunctionCollapse WFC;
     public GameObject[] TilePrefabs;
+    public GameObject TowerParent, PathParent, PathBorderParent, GeneratedMapTilesParent;
     private int[,] _obsMap;
     private int[,] _intMapRep;
     public GameObject pathSphere;
@@ -50,6 +53,7 @@ public class MapGenerator : MonoBehaviour
         GenerateMap();
         //WFC.WaveFunctionCollapseStart();
         SpawnTiles();
+        EventManager.OnMapGenerated?.Invoke();
     }
 
     #endregion UNITY METHODS
@@ -68,6 +72,7 @@ public class MapGenerator : MonoBehaviour
 
     public void SpawnTiles()
     {
+        Tile[,] tiles = new Tile[mapSize.x, mapSize.y];
         for (int x = 0; x < mapSize.x; x++)
         {
             for (int y = 0; y < mapSize.y; y++)
@@ -77,25 +82,43 @@ public class MapGenerator : MonoBehaviour
                 if (_intMapRep[x, y] == (int)TileType.Path)
                 {
                     newTile = Instantiate(TilePrefabs[1], tilePosition, Quaternion.identity);
-                    newTile.transform.parent = mapHolder;
+                    Tile newT = newTile.GetComponent<Tile>();
+                    newT.coord = new CoordStruct(x, y);
+                    tiles[x, y] = newT;
+                    newTile.transform.parent = PathParent.transform;
                 }
                 else if (_intMapRep[x, y] == (int)TileType.PathBorder)
                 {
                     newTile = Instantiate(TilePrefabs[2], tilePosition, Quaternion.identity);
-                    newTile.transform.parent = mapHolder;
+                    Tile newT = newTile.GetComponent<Tile>();
+                    newT.coord = new CoordStruct(x, y);
+                    tileManager.PosTileDict.Add(newT.coord, newTile.GetComponent<BuildingTile>());
+                    tileManager.tiles.Add(newTile.GetComponent<BuildingTile>());
+                    newTile.GetComponent<BuildingTile>().properties.Coord = newT.coord;
+                    tiles[x, y] = newT;
+                    newTile.transform.parent = PathBorderParent.transform;
                 }
                 else if (_intMapRep[x, y] == (int)TileType.WizardTower)
                 {
                     newTile = Instantiate(TowerObj, tilePosition, Quaternion.identity);
-                    newTile.transform.parent = mapHolder;
+                    Tile newT = newTile.GetComponent<Tile>();
+                    newT.coord = new CoordStruct(x, y);
+                    tiles[x, y] = newT;
+                    newTile.transform.parent = TowerParent.transform;
                 }
                 else if (_intMapRep[x, y] == (int)TileType.Grass)
                 {
                     newTile = Instantiate(TilePrefabs[0], tilePosition, Quaternion.identity);
-                    newTile.transform.parent = mapHolder;
+                    Tile newT = newTile.GetComponent<Tile>();
+                    newT.coord = new CoordStruct(x, y);
+                    tiles[x, y] = newT;
+                    newTile.transform.parent = GeneratedMapTilesParent.transform;
                 }
             }
         }
+        MapRepresentation.LoadTileMap(tiles);
+        var pNav = PathParent.GetComponent<NavMeshSurface>();
+        pNav.BuildNavMesh();
     }
 
     public void GenerateMap()

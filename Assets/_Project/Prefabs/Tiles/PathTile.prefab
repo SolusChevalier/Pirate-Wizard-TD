@@ -233,6 +233,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3285502383964011625}
   - component: {fileID: 8405004173823528757}
+  - component: {fileID: 1732693991766841806}
+  - component: {fileID: 1942183940012843118}
   m_Layer: 0
   m_Name: PathTile
   m_TagString: Tile
@@ -269,8 +271,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 435400c215a64f54596a3902eeeb9369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
+  type: 4
   position: {x: 0, y: 0}
+--- !u!65 &1732693991766841806
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7080887302694045176}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 0.14, z: 1}
+  m_Center: {x: 0, y: 0.07, z: 0}
+--- !u!114 &1942183940012843118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7080887302694045176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 0
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 0
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
 --- !u!1001 &8360570519160080876
 PrefabInstance:
   m_ObjectHideFlags: 0

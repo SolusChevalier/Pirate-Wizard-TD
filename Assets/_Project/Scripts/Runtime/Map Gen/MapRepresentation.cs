@@ -6,13 +6,14 @@ using UnityEngine;
 [Serializable]
 public class MapRepresentation : MonoBehaviour
 {
-    public int Width;
-    public int Height;
-    public TileType[,] MapRep;
+    public static int Width;
+    public static int Height;
+    public static TileType[,] MapRep;
+    public static Tile[,] TileMap;
     public int Seed;
-    public List<CoordStruct> Path1;
-    public List<CoordStruct> Path2;
-    public List<CoordStruct> Path3;
+    public static List<CoordStruct> Path1;
+    public static List<CoordStruct> Path2;
+    public static List<CoordStruct> Path3;
 
     public void InitMapRep(int width, int height, int seed)
     {
@@ -20,6 +21,7 @@ public class MapRepresentation : MonoBehaviour
         Height = height;
         Seed = seed;
         MapRep = new TileType[width, height];
+        TileMap = new Tile[width, height];
         IntializeMapRep();
     }
 
@@ -51,6 +53,11 @@ public class MapRepresentation : MonoBehaviour
                 MapRep[x, y] = (TileType)intMap[x, y];
             }
         }
+    }
+
+    public void LoadTileMap(Tile[,] LoadedTileMap)
+    {
+        TileMap = LoadedTileMap;
     }
 
     public CoordStruct[] GetNeighbors(CoordStruct coord)

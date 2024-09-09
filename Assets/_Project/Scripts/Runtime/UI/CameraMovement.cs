@@ -13,15 +13,20 @@ public class CameraMovement : MonoBehaviour
     public float AltitudeSpeed = 0.5f;
     public float TurnSpeed = 10f;
     public float ZoomSpeed = 10f;
+    public Vector2 Xclamp = new Vector2(-5f, 65f);
+    public Vector2 Yclamp = new Vector2(1f, 35f);
+    public Vector2 Zclamp = new Vector2(-5f, 35f);
     private InputActions inputActions;
     public float TransSmoothInputSpeed = 0.2f;
     public float AltSmoothInputSpeed = 0.2f;
     public float YawSmoothInputSpeed = 0.2f;
     public float PitchSmoothInputSpeed = 0.2f;
     public float ZoomSmoothInputSpeed = 0.2f;
-    public float anchorOffsst = 1f;
-    public Vector2 currTransInputVel, TransSmoothInputVal, currRotInputVal, RotSmoothInputVal;
-    public float currAltInputVel, AltSmoothInputVal, currYawInputVel, YawSmoothInput, currPitchInputVel, PitchSmoothInput, currZoomInputVel = 1f, ZoomSmoothInputVal;
+
+    //private float anchorOffsst = 1f;
+    private Vector2 currTransInputVel, TransSmoothInputVal, currRotInputVal, RotSmoothInputVal;
+
+    private float currAltInputVel, AltSmoothInputVal, currYawInputVel, YawSmoothInput, currPitchInputVel, PitchSmoothInput, currZoomInputVel = 1f, ZoomSmoothInputVal;
 
     #endregion FIELDS
 
@@ -92,7 +97,7 @@ public class CameraMovement : MonoBehaviour
         Camera.transform.Translate(movement, Space.World);
         //Debug.Log("X: " + Camera.transform.position.x + " Y: " + Camera.transform.position.y + " Z: " + Camera.transform.position.z);
         //float x = Mathf.Clamp(Camera.transform.position.x, -10f, 0f);
-        Camera.transform.position = new Vector3(Mathf.Clamp(Camera.transform.position.x, -5f, 65f), Mathf.Clamp(Camera.transform.position.y, 1, 35f), Mathf.Clamp(Camera.transform.position.z, -5f, 35f));
+        Camera.transform.position = new Vector3(Mathf.Clamp(Camera.transform.position.x, Xclamp.x, Xclamp.y), Mathf.Clamp(Camera.transform.position.y, Yclamp.x, Yclamp.y), Mathf.Clamp(Camera.transform.position.z, Zclamp.x, Zclamp.y));
     }
 
     public void rotation(Vector2 rot)

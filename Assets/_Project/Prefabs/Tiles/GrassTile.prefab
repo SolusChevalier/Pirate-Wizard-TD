@@ -232,7 +232,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3285502383964011625}
-  - component: {fileID: 8405004173823528757}
+  - component: {fileID: 3298192033588352378}
   m_Layer: 0
   m_Name: GrassTile
   m_TagString: Tile
@@ -257,7 +257,7 @@ Transform:
   - {fileID: 5709057457113189396}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8405004173823528757
+--- !u!114 &3298192033588352378
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -269,8 +269,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 435400c215a64f54596a3902eeeb9369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
-  position: {x: 0, y: 0}
+  type: 2
+  coord:
+    x: 0
+    y: 0
 --- !u!1001 &590173534434880392
 PrefabInstance:
   m_ObjectHideFlags: 0
