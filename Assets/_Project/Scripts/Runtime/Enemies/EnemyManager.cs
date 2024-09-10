@@ -53,8 +53,8 @@ public class EnemyManager : MonoBehaviour
         CoordStruct SpawnCoord3 = MapRepresentation.Path3[0];
         _Spawn3 = MapRepresentation.TileMap[SpawnCoord3.x, SpawnCoord3.y].TopSpawnPoint;
         CurrentWave++;
-        NumEnemies = (int)(CurrentWave * 1.5f);
-        EnemiesLeft = NumEnemies * 3;
+        NumEnemies = (int)(CurrentWave * 2f);
+        EnemiesLeft = NumEnemies;
         EventManager.SetEnemyUI?.Invoke(EnemiesLeft);
         EventManager.SetWaveUI?.Invoke(CurrentWave);
         WaveCount++;
@@ -103,7 +103,9 @@ public class EnemyManager : MonoBehaviour
     {
         for (int i = 0; i < NumEnemies; i++)
         {
+            //Debug.Log("Spawning Enemy" + NumEnemies);
             int rand = UnityEngine.Random.Range(1, 4);
+
             switch (rand)
             {
                 case 1:

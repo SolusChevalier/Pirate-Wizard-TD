@@ -4,8 +4,6 @@ using System.Drawing;
 using UnityEngine;
 using UnityEngine.AI;
 
-using static UnityEditor.Rendering.Universal.ShaderGUI.LitGUI;
-
 public class Defender : MonoBehaviour
 {
     #region FIELDS
@@ -18,7 +16,7 @@ public class Defender : MonoBehaviour
     public int cost = 10;
     public MeshRenderer meshRenderer;
     public UnityEngine.Color[] Colours;
-    public int UpgradeCost => cost * 3;
+    public int UpgradeCost = 30;
     public List<Enemy> EnemyTarget = new List<Enemy>();
 
     [Header("Attack Settings")]
@@ -139,6 +137,7 @@ public class Defender : MonoBehaviour
         attackDamage *= 3;
         MaxHealth *= 3;
         Health = MaxHealth;
+        UpgradeCost *= 3;
     }
 
     private bool CanAttackEnemy(Enemy enemyTarget)

@@ -12,9 +12,12 @@ public class PlayerManager : MonoBehaviour
     public static Transform TowerCenter;
     public static BuildingTile selectedTile;
     public GameObject DefenderPrefab;
+    public static GameObject TowerObject;
     public static List<Defender> defenders = new List<Defender>();
     private bool EvenOdd => ((MapRepresentation.Width % 2) == 0);
     private int EvenOddMultiplier => EvenOdd ? 1 : 2;
+    public MeshRenderer meshRenderer;
+    public Color[] Colours;
 
     [Header("Attack Settings")]
     public Enemy CurrentlyAttacking;
@@ -46,10 +49,23 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
-        Money = 100;
+        Money = 50;
         updateMoneyUI();
         TowerHealth = MaxTowerHealth;
         attackRange *= EvenOddMultiplier;
+    }
+
+    private void OnMap()
+    {
+        meshRenderer = TowerObject.GetComponentInChildren<MeshRenderer>();
+        //Debug.Log(meshRenderer.materials.Length);
+        Colours = new UnityEngine.Color[meshRenderer.materials.Length];
+        int i = 0;
+        foreach (var mat in meshRenderer.materials)
+        {
+            Colours[i] = mat.color;
+            i++;
+        }
     }
 
     private void OnEnable()
@@ -63,6 +79,7 @@ public class PlayerManager : MonoBehaviour
         EventManager.BuyDefender += BuyDefender;
         EventManager.SellDefender += SellDefender;
         EventManager.UpgradeDefender += UpgradeDefender;
+        EventManager.OnMapGenerated += OnMap;
     }
 
     private void OnDisable()
@@ -76,6 +93,7 @@ public class PlayerManager : MonoBehaviour
         EventManager.BuyDefender -= BuyDefender;
         EventManager.SellDefender -= SellDefender;
         EventManager.UpgradeDefender -= UpgradeDefender;
+        EventManager.OnMapGenerated -= OnMap;
     }
 
     #endregion UNITY METHODS
@@ -85,6 +103,7 @@ public class PlayerManager : MonoBehaviour
     public void TakeDamage(int damage)
     {
         TowerHealth -= damage;
+        StartCoroutine(MaterialChange());
         if (TowerHealth <= 0)
         {
             EventManager.OnGameEnded?.Invoke();
@@ -185,6 +204,24 @@ public class PlayerManager : MonoBehaviour
     {
         //Debug.Log("Wave End: Added " + Mathf.Round(Money / 100.0f) + " as Interest");
         AddMoney((int)Mathf.Round(Money / 100.0f));
+    }
+
+    private IEnumerator MaterialChange()
+    {
+        var mats = meshRenderer.materials;
+        int i = 0;
+        foreach (var mat in mats)
+        {
+            mat.color = Color.red;
+            i++;
+        }
+        yield return new WaitForSeconds(0.25f);
+        i = 0;
+        foreach (var mat in mats)
+        {
+            mat.color = Colours[i];
+            i++;
+        }
     }
 
     #endregion METHODS

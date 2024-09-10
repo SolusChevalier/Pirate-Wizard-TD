@@ -46,7 +46,7 @@ public static class GameScenes
 
     public static void ExitApp()
     {
-        UnityEditor.EditorApplication.ExitPlaymode();
+        //UnityEditor.EditorApplication.ExitPlaymode();
         UnityEngine.Application.Quit();
     }
 

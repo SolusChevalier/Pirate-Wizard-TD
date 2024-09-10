@@ -5,9 +5,8 @@ using Unity.AI.Navigation;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.VisualScripting;
-using UnityEditor.Playables;
+
 using UnityEngine;
-using static UnityEditor.FilePathAttribute;
 
 public class MapGenerator : MonoBehaviour
 {
@@ -109,10 +108,19 @@ public class MapGenerator : MonoBehaviour
                     tiles[x, y] = newT;
                     newTile.transform.parent = TowerParent.transform;
                     PlayerManager.TowerCenter = newT.TopSpawnPoint;
+                    PlayerManager.TowerObject = newTile;
+                }
+                else if (_intMapRep[x, y] == (int)TileType.Grass)
+                {
+                    newTile = Instantiate(TilePrefabs[0], tilePosition, Quaternion.identity);
+                    Tile newT = newTile.GetComponent<Tile>();
+                    newT.coord = new CoordStruct(x, y);
+                    tiles[x, y] = newT;
+                    newTile.transform.parent = GeneratedMapTilesParent.transform;
                 }
                 else if (_intMapRep[x, y] == (int)TileType.Empty)
                 {
-                    newTile = Instantiate(TilePrefabs[0], tilePosition, Quaternion.identity);
+                    newTile = Instantiate(TilePrefabs[3], tilePosition, Quaternion.identity);
                     Tile newT = newTile.GetComponent<Tile>();
                     newT.coord = new CoordStruct(x, y);
                     tiles[x, y] = newT;

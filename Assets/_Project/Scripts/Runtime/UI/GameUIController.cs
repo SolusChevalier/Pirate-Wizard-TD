@@ -12,7 +12,7 @@ public class GameUIController : MonoBehaviour
     public int waveNumber = 0;
     public int enemiesLeft = 0;
     public int money = 0;
-    public GameObject MenuPnl, MenuBtnPnl, TimeControlPanel, EnemyPnl, EndPnl;
+    public GameObject MenuPnl, MenuBtnPnl, TimeControlPanel, EnemyPnl, EndPnl, tutPnl;
     public UnityEngine.UI.Image TimeImage;
     public Sprite PauseSpt, PlaySpt, FastSpt;
     public TextMeshProUGUI enemyCountText;
@@ -68,6 +68,8 @@ public class GameUIController : MonoBehaviour
         TimeControlPanel.SetActive(true);
         MenuBtnPnl.SetActive(false);
         EndPnl.SetActive(false);
+        tutPnl.SetActive(true);
+        StartCoroutine(TutorialPnlWaitTimer());
     }
 
     #endregion UNITY METHODS
@@ -243,6 +245,12 @@ public class GameUIController : MonoBehaviour
     public IEnumerator WaitFor(float Secs)
     {
         yield return new WaitForSeconds(Secs);
+    }
+
+    public IEnumerator TutorialPnlWaitTimer()
+    {
+        yield return new WaitForSeconds(3);
+        tutPnl.SetActive(false);
     }
 
     #endregion METHODS
