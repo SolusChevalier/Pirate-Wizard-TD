@@ -82,10 +82,10 @@ public class WaveFunctionCollapse : MonoBehaviour
     private void CollapseTile(int x, int y)
     {
         // Step 1: Get the neighbors using the static method from MapUtils
-        List<int2> neighbors = MapUtils.GetNeighbors(x, y); // Assuming this returns a list of (x, y) coordinates for the neighbors
+        List<int2> neighbors = MapUtils.GetNeighbors(x, y);
 
         // Step 2: Get the valid tile types for the current tile based on its neighbors
-        List<TileType> possibleTiles = new List<TileType>(tileConstraints.Keys); // Start with all possible tiles
+        List<TileType> possibleTiles = new List<TileType>(tileConstraints.Keys);
 
         foreach (var neighbor in neighbors)
         {
@@ -108,7 +108,7 @@ public class WaveFunctionCollapse : MonoBehaviour
         }
         else
         {
-            // In case no valid tile exists (which should be rare), fallback to a default tile (like Grass or Sand)
+            // In case no valid tile exists (which should be rare), fallback to a default tile
             tileMap[x, y] = TileType.Grass;
         }
     }
@@ -162,21 +162,16 @@ public class WaveFunctionCollapse : MonoBehaviour
     // Method to get possible tile types for a given tile
     private List<TileType> GetPossibleTiles(int x, int y)
     {
-        // Assuming you store possibilities for each tile, return the list of possibilities here.
-        // This is just a placeholder, you should modify it based on how you're storing this data.
         return new List<TileType> { TileType.Grass, TileType.Sand, TileType.Path }; // Example possible tiles
     }
 
     // Method to set the possible tiles for a given tile
     private void SetPossibleTiles(int x, int y, List<TileType> possibleTiles)
     {
-        // This method updates the stored possible tiles for this position
-        // Modify this based on how you're storing this data.
     }
 
     private bool CheckIfAllCollapsed()
     {
-        // Check if every tile in tileMap has been assigned a specific TileType
         return false;
     }
 }
