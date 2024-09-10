@@ -13,6 +13,7 @@ TagManager:
   - Defender
   - Goblin
   - BorderTile
+  - Play
   layers:
   - Default
   - TransparentFX

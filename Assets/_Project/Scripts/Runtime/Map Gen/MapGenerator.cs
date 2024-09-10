@@ -91,10 +91,13 @@ public class MapGenerator : MonoBehaviour
                 {
                     newTile = Instantiate(TilePrefabs[2], tilePosition, Quaternion.identity);
                     Tile newT = newTile.GetComponent<Tile>();
+                    BuildingTile buildingTile = newTile.GetComponent<BuildingTile>();
                     newT.coord = new CoordStruct(x, y);
-                    tileManager.PosTileDict.Add(newT.coord, newTile.GetComponent<BuildingTile>());
-                    tileManager.tiles.Add(newTile.GetComponent<BuildingTile>());
-                    newTile.GetComponent<BuildingTile>().properties.Coord = newT.coord;
+                    buildingTile.properties.Coord = newT.coord;
+                    //Debug.Log(newT.coord);
+                    tileManager.PosTileDict.Add(newT.coord, buildingTile);
+                    tileManager.tiles.Add(buildingTile);
+
                     tiles[x, y] = newT;
                     newTile.transform.parent = PathBorderParent.transform;
                 }
@@ -105,8 +108,9 @@ public class MapGenerator : MonoBehaviour
                     newT.coord = new CoordStruct(x, y);
                     tiles[x, y] = newT;
                     newTile.transform.parent = TowerParent.transform;
+                    PlayerManager.TowerCenter = newT.TopSpawnPoint;
                 }
-                else if (_intMapRep[x, y] == (int)TileType.Grass)
+                else if (_intMapRep[x, y] == (int)TileType.Empty)
                 {
                     newTile = Instantiate(TilePrefabs[0], tilePosition, Quaternion.identity);
                     Tile newT = newTile.GetComponent<Tile>();

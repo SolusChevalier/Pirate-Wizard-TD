@@ -43,10 +43,15 @@ public class TileManager : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))//if the ray hits something
         {
-            if (hit.collider.CompareTag("BorderTile"))//if the thing hit is a tile
+            if (hit.collider.CompareTag("BorderTile") || hit.collider.CompareTag("Defender"))//if the thing hit is a tile
             {
                 //Debug.Log(hit.collider.tag);
-                BuildingTile tile = hit.collider.GetComponent<BuildingTile>();//grabs the tile that was hit
+                BuildingTile tile;
+                if (hit.collider.CompareTag("Defender"))
+                    tile = GetTile(hit.collider.GetComponent<Defender>().Coord);//get the tile that was hit
+                else
+                    tile = hit.collider.GetComponent<BuildingTile>();//get the tile that was hit
+
                 //Debug.Log(tile.properties.hover);
                 if (Input.GetButtonDown("Fire1"))//if the left mouse button is clicked and the tile is selectable
                 {
@@ -56,6 +61,7 @@ public class TileManager : MonoBehaviour
                         selectedTile = tile;
                         tile.selectable = true;
                         tile.Select();
+                        EventManager.OnTileSelected?.Invoke(tile);
                     }
                     else if (selectedTile == tile)//if the selected tile is the same as the clicked tile then deselect the tile
                     {
@@ -63,6 +69,7 @@ public class TileManager : MonoBehaviour
                         selectedTile = null;
                         tile.Select();
                         resetTiles();
+                        EventManager.OnTileDeselect?.Invoke();
                     }
                     else//if the selected tile is not the same as the clicked tile set the clicked one as the target tile
                     {
@@ -70,6 +77,7 @@ public class TileManager : MonoBehaviour
                         selectedTile = tile;
                         tile.selectable = true;
                         tile.Select();
+                        EventManager.OnTileSelected?.Invoke(tile);
                     }
                 }
                 if (!tile.properties.hover || tile.selectable)//if the tile is not hovered or the tile is selectable
@@ -81,6 +89,7 @@ public class TileManager : MonoBehaviour
         if (Input.GetButtonDown("Fire2"))//if the right mouse button is clicked
         {
             resetTiles();//reset all tiles
+            EventManager.OnTileDeselect?.Invoke();
         }
     }
 

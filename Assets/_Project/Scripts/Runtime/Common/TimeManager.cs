@@ -27,5 +27,11 @@ public class TimeManager : MonoBehaviour
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
     }
 
+    public void SwitchToFastSpeed()
+    {
+        Time.timeScale = FastSpeed;
+        Time.fixedDeltaTime = 0.02f * Time.timeScale;
+    }
+
     #endregion METHODS
 }

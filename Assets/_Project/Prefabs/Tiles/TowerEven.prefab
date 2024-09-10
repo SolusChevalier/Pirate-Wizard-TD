@@ -140,7 +140,7 @@ GameObject:
   m_Component:
   - component: {fileID: 259745670758304397}
   m_Layer: 0
-  m_Name: TopSpawnPoint
+  m_Name: TowerTargetPoint
   m_TagString: TopSpawnPoint
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -155,7 +155,7 @@ Transform:
   m_GameObject: {fileID: 5237784217879330445}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.2, z: 0}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -270,7 +270,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  position: {x: 0, y: 0}
+  coord:
+    x: 0
+    y: 0
 --- !u!1001 &561108103211293406
 PrefabInstance:
   m_ObjectHideFlags: 0

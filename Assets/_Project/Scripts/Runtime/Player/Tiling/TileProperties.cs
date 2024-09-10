@@ -26,5 +26,6 @@ public class TileProperties
         Occupied = false;
         OccupyingUnit = null;
         PlacementPoint = ppPoint;
+        Coord = new CoordStruct();
     }
 }

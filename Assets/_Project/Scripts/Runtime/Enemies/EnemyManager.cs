@@ -6,20 +6,32 @@ public class EnemyManager : MonoBehaviour
 {
     #region FIELDS
 
-    public int CurrentWave = 1;
+    public int CurrentWave = 0;
     public int EnemiesLeft;
+    public int NumEnemies = 0;
+
+    public static int WaveCount = 0;
+    public static int EnemiesKilled = 0;
     public GameObject GoblinPrefab;
     public Transform _Spawn1, _Spawn2, _Spawn3;
     public Transform _Destination1, _Destination2, _Destination3;
+    public static List<Enemy> EnemyList = new List<Enemy>();
+    public PlayerManager playerManager;
 
     #endregion FIELDS
 
     #region UNITY METHODS
 
-    private void Awake()
+    private void OnEnable()
     {
-        EventManager.OnGameStarted += StartWave;
+        EventManager.OnWaveStart += StartWave;
         EventManager.OnEnemyDestroyed += EnemyDestroyed;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnWaveStart -= StartWave;
+        EventManager.OnEnemyDestroyed -= EnemyDestroyed;
     }
 
     #endregion UNITY METHODS
@@ -41,7 +53,11 @@ public class EnemyManager : MonoBehaviour
         CoordStruct SpawnCoord3 = MapRepresentation.Path3[0];
         _Spawn3 = MapRepresentation.TileMap[SpawnCoord3.x, SpawnCoord3.y].TopSpawnPoint;
         CurrentWave++;
-        EnemiesLeft = CurrentWave * 2;
+        NumEnemies = (int)(CurrentWave * 1.5f);
+        EnemiesLeft = NumEnemies * 3;
+        EventManager.SetEnemyUI?.Invoke(EnemiesLeft);
+        EventManager.SetWaveUI?.Invoke(CurrentWave);
+        WaveCount++;
         StartCoroutine(SpawnWave());
     }
 
@@ -62,6 +78,12 @@ public class EnemyManager : MonoBehaviour
                 break;
         }
         EnemiesLeft--;
+        EnemiesKilled++;
+        EnemyList.Remove(enemy);
+        if (enemy.ReachedTower)
+            PlayerManager.AttackableEnemyList.Remove(enemy);
+        EventManager.UpdateMoneyUI?.Invoke();
+        EventManager.SetEnemyUI?.Invoke(EnemiesLeft);
         if (EnemiesLeft == 0)
         {
             EventManager.OnWaveCompleted?.Invoke();
@@ -72,16 +94,31 @@ public class EnemyManager : MonoBehaviour
     {
         GameObject enemy = Instantiate(prefab, spawnPoint.position, Quaternion.identity);
         enemy.GetComponent<Enemy>().FinalDest = destination.position;
+        enemy.GetComponent<Enemy>().PlayerManager = playerManager;
         enemy.GetComponent<Enemy>().MoveTo(destination.position);
+        EnemyList.Add(enemy.GetComponent<Enemy>());
     }
 
     private IEnumerator SpawnWave()
     {
-        for (int i = 0; i < EnemiesLeft; i++)
+        for (int i = 0; i < NumEnemies; i++)
         {
-            SpawnEnemy(GoblinPrefab, _Spawn1, _Destination1);
-            SpawnEnemy(GoblinPrefab, _Spawn2, _Destination2);
-            SpawnEnemy(GoblinPrefab, _Spawn3, _Destination3);
+            int rand = UnityEngine.Random.Range(1, 4);
+            switch (rand)
+            {
+                case 1:
+                    SpawnEnemy(GoblinPrefab, _Spawn1, _Destination1);
+                    break;
+
+                case 2:
+                    SpawnEnemy(GoblinPrefab, _Spawn2, _Destination2);
+                    break;
+
+                case 3:
+                    SpawnEnemy(GoblinPrefab, _Spawn3, _Destination3);
+                    break;
+            }
+
             yield return new WaitForSeconds(3);
         }
     }

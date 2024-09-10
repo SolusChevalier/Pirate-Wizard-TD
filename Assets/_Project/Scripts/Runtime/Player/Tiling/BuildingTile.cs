@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class BuildingTile : MonoBehaviour
@@ -15,11 +18,11 @@ public class BuildingTile : MonoBehaviour
     public HoverState hoverState = HoverState.Static;
     private bool _Home = true;
 
-    private void Start()//starting properties
+    private void Awake()//starting properties
     {
         properties = new TileProperties();
         properties.startProps(transform.position, placementPoint);
-        _motionEquation = new Vector3(Mathf.Floor(Random.Range(0, 3)), Mathf.Floor(Random.Range(0, 3)), Mathf.Floor(Random.Range(0, 3)));
+        _motionEquation = new Vector3(Mathf.Floor(UnityEngine.Random.Range(0, 3)), Mathf.Floor(UnityEngine.Random.Range(0, 3)), Mathf.Floor(UnityEngine.Random.Range(0, 3)));
         _HoverAnchorLow = properties.StartPos + new Vector3(0, 0.2f, 0);
         _HoverAnchorHigh = properties.StartPos + new Vector3(0, 0.4f, 0);
         _HoverOverPos = properties.StartPos + new Vector3(0, 0.3f, 0);
@@ -155,6 +158,39 @@ public class BuildingTile : MonoBehaviour
                 _HoverAnchorHigh.x, _HoverAnchorHigh.y + TrigMotionEquations((int)_motionEquation.y, _progression.y, 0.15f, 0.05f), _HoverAnchorHigh.z),
                 Time.deltaTime * 5f);
         }
+    }
+
+    public void instantiateUnit(GameObject DefenderPrefab)//instantiates a unit
+    {
+        GameObject unit = null;
+        Defender tmpUnit = null;
+
+        unit = Instantiate(DefenderPrefab, placementPoint.position, placementPoint.rotation);
+
+        tmpUnit = unit.GetComponent<Defender>();
+        properties.OccupyingUnit = tmpUnit;
+        tmpUnit.Coord = properties.Coord;
+        properties.Occupied = true;
+        tmpUnit.transform.SetParent(placementPoint);
+        tmpUnit.Tile = this;
+        PlayerManager.defenders.Add(tmpUnit);
+    }
+
+    public void SellDefender()//sells a unit
+    {
+        if (properties.OccupyingUnit == null)
+            return;
+        PlayerManager.defenders.Remove(properties.OccupyingUnit);
+        Destroy(properties.OccupyingUnit.gameObject);
+        properties.OccupyingUnit = null;
+        properties.Occupied = false;
+    }
+
+    public void UpgradeDefender()//upgrades a unit
+    {
+        if (properties.OccupyingUnit == null)
+            return;
+        properties.OccupyingUnit.OnUpgrade();
     }
 
     public void Select()//sellects tile

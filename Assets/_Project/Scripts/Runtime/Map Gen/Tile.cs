@@ -31,7 +31,7 @@ public class Tile : MonoBehaviour
     {
         if (isBuildable)
         {
-            EventManager.OnTileClicked?.Invoke(this);
+            //EventManager.OnTileClicked?.Invoke(this);
         }
     }
 

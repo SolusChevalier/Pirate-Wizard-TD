@@ -4,9 +4,16 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public void Awake()
+    public static GameState gameState = GameState.BuildingPhase;
+
+    private void OnEnable()
     {
         EventManager.OnMapGenerated += GameStart;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnMapGenerated -= GameStart;
     }
 
     public void GameStart()
