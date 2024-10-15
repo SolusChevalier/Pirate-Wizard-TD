@@ -28,4 +28,19 @@ public class TileProperties
         PlacementPoint = ppPoint;
         Coord = new CoordStruct();
     }
+
+    public TileProperties Clone()
+    {
+        TileProperties clone = new TileProperties();
+        clone.StartPos = StartPos;
+        clone._selected = _selected;
+        clone.canHover = canHover;
+        clone.hover = hover;
+        clone.highLow = highLow;
+        clone.Occupied = Occupied;
+        clone.OccupyingUnit = OccupyingUnit;
+        clone.PlacementPoint = PlacementPoint;
+        clone.Coord = Coord;
+        return clone;
+    }
 }

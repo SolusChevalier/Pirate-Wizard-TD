@@ -11,7 +11,7 @@ public class PlayerManager : MonoBehaviour
     public int Money;
     public static Transform TowerCenter;
     public static BuildingTile selectedTile;
-    public GameObject DefenderPrefab;
+    public GameObject GolemDefenderPrefab, GunDefenderPrefab, CanonDefenderPrefab;
     public static GameObject TowerObject;
     public static List<Defender> defenders = new List<Defender>();
     private bool EvenOdd => ((MapRepresentation.Width % 2) == 0);
@@ -156,29 +156,57 @@ public class PlayerManager : MonoBehaviour
         return en;
     }
 
-    public void BuyDefender(BuildingTile tile)
+    public void BuyDefender(BuildingTile tile, int DefenderType)
     {
         if (tile.properties.Occupied) return;
-        if (Money >= DefenderPrefab.GetComponent<Defender>().cost)
+
+        switch (DefenderType)
         {
-            RemoveMoney(DefenderPrefab.GetComponent<Defender>().cost);
-            tile.instantiateUnit(DefenderPrefab);
+            case 0:
+                if (Money >= GolemDefenderPrefab.GetComponent<Defender>().cost)
+                {
+                    RemoveMoney(GolemDefenderPrefab.GetComponent<Defender>().cost);
+                    tile.instantiateUnit(GolemDefenderPrefab);
+                }
+                break;
+
+            case 1:
+                if (Money >= GunDefenderPrefab.GetComponent<Defender>().cost)
+                {
+                    RemoveMoney(GunDefenderPrefab.GetComponent<Defender>().cost);
+                    tile.instantiateUnit(GunDefenderPrefab);
+                }
+                break;
+
+            case 2:
+                if (Money >= CanonDefenderPrefab.GetComponent<Defender>().cost)
+                {
+                    RemoveMoney(CanonDefenderPrefab.GetComponent<Defender>().cost);
+                    tile.instantiateUnit(CanonDefenderPrefab);
+                }
+                break;
         }
+        /*if (Money >= GolemDefenderPrefab.GetComponent<Defender>().cost)
+        {
+            RemoveMoney(GolemDefenderPrefab.GetComponent<Defender>().cost);
+            tile.instantiateUnit(GolemDefenderPrefab);
+        }*/
     }
 
     public void SellDefender(BuildingTile tile)
     {
         if (!tile.properties.Occupied) return;
-        AddMoney(DefenderPrefab.GetComponent<Defender>().cost / 2);
+
+        AddMoney(tile.properties.OccupyingUnit.GetComponent<Defender>().cost / 2);
         tile.SellDefender();
     }
 
     public void UpgradeDefender(BuildingTile tile)
     {
         if (!tile.properties.Occupied) return;
-        if (Money >= DefenderPrefab.GetComponent<Defender>().UpgradeCost)
+        if (Money >= GolemDefenderPrefab.GetComponent<Defender>().UpgradeCost)
         {
-            RemoveMoney(DefenderPrefab.GetComponent<Defender>().UpgradeCost);
+            RemoveMoney(GolemDefenderPrefab.GetComponent<Defender>().UpgradeCost);
             tile.UpgradeDefender();
         }
     }
@@ -203,6 +231,7 @@ public class PlayerManager : MonoBehaviour
     public void WaveEnd()
     {
         //Debug.Log("Wave End: Added " + Mathf.Round(Money / 100.0f) + " as Interest");
+        CurrentlyAttacking = null;
         AddMoney((int)Mathf.Round(Money / 100.0f));
     }
 

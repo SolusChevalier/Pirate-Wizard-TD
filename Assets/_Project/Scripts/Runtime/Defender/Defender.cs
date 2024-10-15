@@ -10,18 +10,23 @@ public class Defender : MonoBehaviour
 
     public CoordStruct Coord;
     public BuildingTile Tile;
+    public int PathIndex;
     public Transform Target;
     public int MaxHealth = 10;
     public int Health = 10;
     public int cost = 10;
+    public float weighting = 1.5f;
     public MeshRenderer meshRenderer;
     public UnityEngine.Color[] Colours;
     public int UpgradeCost = 30;
     public List<Enemy> EnemyTarget = new List<Enemy>();
 
     [Header("Attack Settings")]
-    public Enemy CurrentlyAttacking;
+    public bool ProjectileAttackType = false;
 
+    public Enemy CurrentlyAttacking;
+    public GameObject projectile;
+    public Transform muzzelOrigin;
     private float timeSinceLastAttack = 0f;
     public float attackRange = 1.5f;
     public int attackDamage = 10;
@@ -146,7 +151,7 @@ public class Defender : MonoBehaviour
         bool canAttack = timeSinceLastAttack >= attackCooldown;
         //bool hasLineOfSight = !Physics.Linecast(transform.position, enemyTarget.eyeOrigin.position, LayerMask.GetMask("Default"));
         Vector3 directionToTarget = enemyTarget.eyeOrigin.position - transform.position;
-        Debug.DrawRay(transform.position, directionToTarget * attackRange, UnityEngine.Color.red, 2f);
+        //Debug.DrawRay(transform.position, directionToTarget * attackRange, UnityEngine.Color.red, 2f);
         return isInRange && canAttack; //&& hasLineOfSight;
     }
 
@@ -156,6 +161,13 @@ public class Defender : MonoBehaviour
         {
             timeSinceLastAttack = 0;
             CurrentlyAttacking.TakeDamage(attackDamage);
+
+            if (ProjectileAttackType)
+            {
+                Quaternion directionToTarget = Quaternion.LookRotation(CurrentlyAttacking.eyeOrigin.position - transform.position);
+                GameObject ball = Instantiate(projectile, muzzelOrigin.position, directionToTarget);
+                ball.GetComponent<Rigidbody>().AddRelativeForce((CurrentlyAttacking.eyeOrigin.position - transform.position) * 60f, ForceMode.Impulse);
+            }
         }
     }
 

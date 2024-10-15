@@ -94,8 +94,8 @@ public class MapGenerator : MonoBehaviour
                     newT.coord = new CoordStruct(x, y);
                     buildingTile.properties.Coord = newT.coord;
                     //Debug.Log(newT.coord);
-                    tileManager.PosTileDict.Add(newT.coord, buildingTile);
-                    tileManager.tiles.Add(buildingTile);
+                    TileManager.PosTileDict.Add(newT.coord, buildingTile);
+                    TileManager.tiles.Add(buildingTile);
 
                     tiles[x, y] = newT;
                     newTile.transform.parent = PathBorderParent.transform;
@@ -131,6 +131,7 @@ public class MapGenerator : MonoBehaviour
         MapRepresentation.LoadTileMap(tiles);
         var pNav = PathParent.GetComponent<NavMeshSurface>();
         pNav.BuildNavMesh();
+        MapRepresentation.LoadBorders();
     }
 
     public void GenerateMap()

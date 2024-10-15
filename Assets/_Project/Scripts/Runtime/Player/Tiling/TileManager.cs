@@ -9,15 +9,21 @@ using UnityEngine;
 public class TileManager : MonoBehaviour
 {
     public GameManager gameManager;
-    public List<BuildingTile> tiles = new List<BuildingTile>();
-    public Dictionary<CoordStruct, BuildingTile> PosTileDict = new Dictionary<CoordStruct, BuildingTile>();
+    public static List<BuildingTile> tiles = new List<BuildingTile>();
+    public static Dictionary<CoordStruct, BuildingTile> PosTileDict = new Dictionary<CoordStruct, BuildingTile>();
     public Camera mainCamera;
     private Ray ray;
     private RaycastHit hit;
     public BuildingTile selectedTile;
 
-    private void Start()
+    private void OnEnable()
     {
+        EventManager.OnGameEnded += GameEnd;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnGameEnded -= GameEnd;
     }
 
     private void Awake()
@@ -135,6 +141,12 @@ public class TileManager : MonoBehaviour
             }
         }
         return new CoordStruct(-1, -1);
+    }
+
+    public void GameEnd()
+    {
+        tiles.Clear();
+        PosTileDict.Clear();
     }
 
     public void ResetTileSelectable()

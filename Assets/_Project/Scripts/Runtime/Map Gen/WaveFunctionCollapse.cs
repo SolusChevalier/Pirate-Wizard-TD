@@ -82,7 +82,7 @@ public class WaveFunctionCollapse : MonoBehaviour
     private void CollapseTile(int x, int y)
     {
         // Step 1: Get the neighbors using the static method from MapUtils
-        List<int2> neighbors = MapUtils.GetNeighbors(x, y);
+        List<CoordStruct> neighbors = MapUtils.GetNeighbors(new CoordStruct(x, y));
 
         // Step 2: Get the valid tile types for the current tile based on its neighbors
         List<TileType> possibleTiles = new List<TileType>(tileConstraints.Keys);
@@ -128,7 +128,7 @@ public class WaveFunctionCollapse : MonoBehaviour
             TileType currentTileType = tileMap[currentX, currentY];
 
             // Get all neighbors of the current tile
-            List<int2> neighbors = MapUtils.GetNeighbors(currentX, currentY);
+            List<CoordStruct> neighbors = MapUtils.GetNeighbors(new CoordStruct(currentX, currentY));
 
             // Loop through each neighbor and reduce possibilities based on the current tile type
             foreach (var neighbor in neighbors)

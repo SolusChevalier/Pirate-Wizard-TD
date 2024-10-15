@@ -24,7 +24,7 @@ public static class EventManager
     public static Action PlayBtnClicked;
     public static Action PauseBtnClicked;
     public static Action FastBtnClicked;
-    public static Action<BuildingTile> BuyDefender;
+    public static Action<BuildingTile, int> BuyDefender;
     public static Action<BuildingTile> SellDefender;
     public static Action<BuildingTile> UpgradeDefender;
 }

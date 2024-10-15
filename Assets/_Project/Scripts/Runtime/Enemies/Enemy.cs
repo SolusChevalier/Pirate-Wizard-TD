@@ -23,6 +23,8 @@ public class Enemy : MonoBehaviour
     [Header("Attack Settings")]
     public Defender CurrentlyAttacking;
 
+    public GameObject Explosion;
+    public GameObject SecondaryExplosion;
     private float timeSinceLastAttack = 0f;
     public float attackRange = 1.5f;
     public int attackDamage = 10;
@@ -87,17 +89,38 @@ public class Enemy : MonoBehaviour
     {
         if (CurrentlyAttacking == null)
         {
+            List<Defender> TmpDefenders = new List<Defender>();
             //Debug.Log("CurrentlyAttacking is null");
             foreach (Defender def in PlayerManager.defenders)
             {
                 //Debug.Log(IsTargetInSight(def.Target));
                 if (IsTargetInSight(def.Target))
                 {
-                    CurrentlyAttacking = def;
-                    _navMeshAgent.SetDestination(CurrentlyAttacking.Target.position);
+                    TmpDefenders.Add(def);
+                    //CurrentlyAttacking = def;
+                    //Vector3 AttackPos = CurrentlyAttacking.Target.position;
+
+                    //_navMeshAgent.SetDestination(CurrentlyAttacking.Target.position);
                     //def.EnemyTarget.Add(this);
-                    return;
+                    //return;
                 }
+            }
+            if (TmpDefenders.Count > 0)
+            {
+                float MinDist = float.MaxValue;
+                foreach (Defender def in TmpDefenders)
+                {
+                    if (Vector3.Distance(transform.position, def.Target.position) < MinDist)
+                    {
+                        MinDist = Vector3.Distance(transform.position, def.Target.position);
+                        CurrentlyAttacking = def;
+                    }
+                }
+
+                //_navMeshAgent.isStopped = false;
+                _navMeshAgent.SetDestination(CurrentlyAttacking.Target.position);
+                CurrentlyAttacking.EnemyTarget.Add(this);
+                return;
             }
         }
     }
@@ -169,6 +192,10 @@ public class Enemy : MonoBehaviour
     public void OnDestroy()
     {
         EventManager.OnEnemyDestroyed?.Invoke(this);
+        if (Type == EnemyType.AlquaedaGoblin)
+        {
+            explode();
+        }
     }
 
     private void AttackPlayer()
@@ -176,6 +203,10 @@ public class Enemy : MonoBehaviour
         if (CurrentlyAttacking != null)
         {
             CurrentlyAttacking.GetComponent<Defender>().TakeDamage(attackDamage);
+            if (Type == EnemyType.AlquaedaGoblin)
+            {
+                explode();
+            }
         }
     }
 
@@ -189,7 +220,7 @@ public class Enemy : MonoBehaviour
         RaycastHit hit;
         Vector3 directionToTarget = (Target.position - eyeOrigin.position).normalized;
 
-        Debug.DrawRay(eyeOrigin.position, directionToTarget * sightRange, Color.red, 2f);
+        //Debug.DrawRay(eyeOrigin.position, directionToTarget * sightRange, Color.red, 2f);
 
         if (Physics.Raycast(eyeOrigin.position, directionToTarget, out hit, sightRange))
         {
@@ -227,6 +258,18 @@ public class Enemy : MonoBehaviour
             CurrentlyAttacking.GetComponent<Defender>().TakeDamage(attackDamage);
             yield return new WaitForSeconds(attackCooldown);
         }
+    }
+
+    public void explode()
+    {
+        Vector3 ExplosionPoint = this.transform.position;
+        Instantiate(Explosion, ExplosionPoint, Quaternion.identity);
+        Instantiate(SecondaryExplosion, ExplosionPoint, Quaternion.identity);
+        //Instantiate(Explosion, ExplosionPoint, Quaternion.identity);
+        //Instantiate(SecondaryExplosion, ExplosionPoint, Quaternion.identity);
+        //Instantiate(Explosion, ExplosionPoint, Quaternion.identity);
+        //Instantiate(SecondaryExplosion, ExplosionPoint, Quaternion.identity);
+        //Destroy(gameObject);
     }
 
     private IEnumerator MaterialChange()

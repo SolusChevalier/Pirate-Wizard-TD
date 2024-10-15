@@ -12,7 +12,10 @@ public class GameUIController : MonoBehaviour
     public int waveNumber = 0;
     public int enemiesLeft = 0;
     public int money = 0;
-    public GameObject MenuPnl, MenuBtnPnl, TimeControlPanel, EnemyPnl, EndPnl, tutPnl;
+    public GameObject MenuPnl, MenuBtnPnl, TimeControlPanel, EnemyPnl, EndPnl, tutPnl, UpgradeBtn, SellBtn, BuyGolemBtn, BuyMusketBtn, BuyCannonBtn;
+    public CanvasGroup canvasGroup;
+    public float fadeTime = 3.0f;
+    private bool isFading = false;
     public UnityEngine.UI.Image TimeImage;
     public Sprite PauseSpt, PlaySpt, FastSpt;
     public TextMeshProUGUI enemyCountText;
@@ -72,6 +75,18 @@ public class GameUIController : MonoBehaviour
         StartCoroutine(TutorialPnlWaitTimer());
     }
 
+    private void Update()
+    {
+        if (isFading && canvasGroup.alpha >= 0)
+        {
+            canvasGroup.alpha -= Time.deltaTime / fadeTime;
+            if (canvasGroup.alpha == 0)
+            {
+                tutPnl.SetActive(false);
+            }
+        }
+    }
+
     #endregion UNITY METHODS
 
     #region METHODS
@@ -118,9 +133,9 @@ public class GameUIController : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    public void OnBuyDefenderBtnClicked()
+    public void OnBuyDefenderBtnClicked(int DefenderType)
     {
-        EventManager.BuyDefender?.Invoke(PlayerManager.selectedTile);
+        EventManager.BuyDefender?.Invoke(PlayerManager.selectedTile, DefenderType);
     }
 
     public void OnSellDefenderBtnClicked()
@@ -149,11 +164,29 @@ public class GameUIController : MonoBehaviour
     private void OnTileClicked(BuildingTile tile)
     {
         MenuBtnPnl.SetActive(true);
+        MenuPnl.SetActive(true);
+        if (tile.properties.OccupyingUnit != null)
+        {
+            UpgradeBtn.SetActive(true);
+            SellBtn.SetActive(true);
+            BuyGolemBtn.SetActive(false);
+            BuyMusketBtn.SetActive(false);
+            BuyCannonBtn.SetActive(false);
+        }
+        else
+        {
+            UpgradeBtn.SetActive(false);
+            SellBtn.SetActive(false);
+            BuyGolemBtn.SetActive(true);
+            BuyMusketBtn.SetActive(true);
+            BuyCannonBtn.SetActive(true);
+        }
     }
 
     private void OnTileDeselect()
     {
         MenuBtnPnl.SetActive(false);
+        MenuPnl.SetActive(false);
     }
 
     public void PlayBtnClicked()
@@ -249,8 +282,8 @@ public class GameUIController : MonoBehaviour
 
     public IEnumerator TutorialPnlWaitTimer()
     {
-        yield return new WaitForSeconds(3);
-        tutPnl.SetActive(false);
+        yield return new WaitForSeconds(1.5f);
+        isFading = true;
     }
 
     #endregion METHODS

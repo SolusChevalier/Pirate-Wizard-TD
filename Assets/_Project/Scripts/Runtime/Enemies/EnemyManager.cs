@@ -9,10 +9,10 @@ public class EnemyManager : MonoBehaviour
     public int CurrentWave = 0;
     public int EnemiesLeft;
     public int NumEnemies = 0;
-
+    public AiManager aiManager;
     public static int WaveCount = 0;
     public static int EnemiesKilled = 0;
-    public GameObject GoblinPrefab;
+    public GameObject GoblinPrefab, SapperPrefab, TrollPrefab;
     public Transform _Spawn1, _Spawn2, _Spawn3;
     public Transform _Destination1, _Destination2, _Destination3;
     public static List<Enemy> EnemyList = new List<Enemy>();
@@ -53,11 +53,13 @@ public class EnemyManager : MonoBehaviour
         CoordStruct SpawnCoord3 = MapRepresentation.Path3[0];
         _Spawn3 = MapRepresentation.TileMap[SpawnCoord3.x, SpawnCoord3.y].TopSpawnPoint;
         CurrentWave++;
+
         NumEnemies = (int)(CurrentWave * 2f);
         EnemiesLeft = NumEnemies;
         EventManager.SetEnemyUI?.Invoke(EnemiesLeft);
         EventManager.SetWaveUI?.Invoke(CurrentWave);
         WaveCount++;
+        //Debug.Log("Wave " + WaveCount + " Started");
         StartCoroutine(SpawnWave());
     }
 
@@ -101,7 +103,62 @@ public class EnemyManager : MonoBehaviour
 
     private IEnumerator SpawnWave()
     {
-        for (int i = 0; i < NumEnemies; i++)
+        Debug.Log("Spawning Wave");
+        SpawnList spawnList1 = aiManager.MakeMove(MapRepresentation.BorderPath1);
+        Debug.Log("SpawnList1: " + spawnList1.EnemySpawns.Count);
+        SpawnList spawnList2 = aiManager.MakeMove(MapRepresentation.BorderPath2);
+        Debug.Log("SpawnList2: " + spawnList2.EnemySpawns.Count);
+        SpawnList spawnList3 = aiManager.MakeMove(MapRepresentation.BorderPath3);
+        Debug.Log("SpawnList3: " + spawnList3.EnemySpawns.Count);
+        foreach (EnemyType enemy in spawnList1.EnemySpawns)
+        {
+            if (enemy == EnemyType.Goblin)
+            {
+                SpawnEnemy(GoblinPrefab, _Spawn1, _Destination1);
+            }
+            else if (enemy == EnemyType.AlquaedaGoblin)
+            {
+                SpawnEnemy(SapperPrefab, _Spawn1, _Destination1);
+            }
+            else if (enemy == EnemyType.Troll)
+            {
+                SpawnEnemy(TrollPrefab, _Spawn1, _Destination1);
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
+        foreach (EnemyType enemy in spawnList2.EnemySpawns)
+        {
+            if (enemy == EnemyType.Goblin)
+            {
+                SpawnEnemy(GoblinPrefab, _Spawn2, _Destination2);
+            }
+            else if (enemy == EnemyType.AlquaedaGoblin)
+            {
+                SpawnEnemy(SapperPrefab, _Spawn2, _Destination2);
+            }
+            else if (enemy == EnemyType.Troll)
+            {
+                SpawnEnemy(TrollPrefab, _Spawn2, _Destination2);
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
+        foreach (EnemyType enemy in spawnList3.EnemySpawns)
+        {
+            if (enemy == EnemyType.Goblin)
+            {
+                SpawnEnemy(GoblinPrefab, _Spawn3, _Destination3);
+            }
+            else if (enemy == EnemyType.AlquaedaGoblin)
+            {
+                SpawnEnemy(SapperPrefab, _Spawn3, _Destination3);
+            }
+            else if (enemy == EnemyType.Troll)
+            {
+                SpawnEnemy(TrollPrefab, _Spawn3, _Destination3);
+            }
+            yield return new WaitForSeconds(0.5f);
+        }
+        /*for (int i = 0; i < NumEnemies; i++)
         {
             //Debug.Log("Spawning Enemy" + NumEnemies);
             int rand = UnityEngine.Random.Range(1, 4);
@@ -113,16 +170,16 @@ public class EnemyManager : MonoBehaviour
                     break;
 
                 case 2:
-                    SpawnEnemy(GoblinPrefab, _Spawn2, _Destination2);
+                    SpawnEnemy(SapperPrefab, _Spawn2, _Destination2);
                     break;
 
                 case 3:
-                    SpawnEnemy(GoblinPrefab, _Spawn3, _Destination3);
+                    SpawnEnemy(TrollPrefab, _Spawn3, _Destination3);
                     break;
             }
 
             yield return new WaitForSeconds(3);
-        }
+        }*/
     }
 
     #endregion METHODS

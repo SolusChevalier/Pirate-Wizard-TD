@@ -14,6 +14,19 @@ public class MapRepresentation : MonoBehaviour
     public static List<CoordStruct> Path1;
     public static List<CoordStruct> Path2;
     public static List<CoordStruct> Path3;
+    public static List<BuildingTile> BorderPath1;
+    public static List<BuildingTile> BorderPath2;
+    public static List<BuildingTile> BorderPath3;
+
+    private void OnEnable()
+    {
+        EventManager.OnWaveCompleted += LoadBorders;
+    }
+
+    private void OnDisable()
+    {
+        EventManager.OnWaveCompleted -= LoadBorders;
+    }
 
     public void InitMapRep(int width, int height, int seed)
     {
@@ -44,6 +57,14 @@ public class MapRepresentation : MonoBehaviour
         Path3 = path3;
     }
 
+    public void LoadBorders()
+    {
+        BorderPath1 = IndexPath(Path1);
+
+        BorderPath2 = IndexPath(Path2);
+        BorderPath3 = IndexPath(Path3);
+    }
+
     private void ConvertIntMapToTileTypeMap(int[,] intMap)
     {
         for (int x = 0; x < Width; x++)
@@ -68,5 +89,32 @@ public class MapRepresentation : MonoBehaviour
         neighbors[2] = new CoordStruct(coord.x - 1, coord.y);
         neighbors[3] = new CoordStruct(coord.x, coord.y + 1);
         return neighbors;
+    }
+
+    public List<BuildingTile> IndexPath(List<CoordStruct> path)
+    {
+        List<BuildingTile> BorderTiles = new List<BuildingTile>();
+        foreach (CoordStruct cord in path)
+        {
+            List<CoordStruct> neighbors = MapUtils.GetNeighbors(cord);
+            foreach (CoordStruct neighbor in neighbors)
+            {
+                try
+                {
+                    if (MapRep[neighbor.x, neighbor.y] == TileType.PathBorder)
+                    {
+                        //Debug.Log(MapRep[neighbor.x, neighbor.y]);
+                        //Debug.Log("BorderTile: " + neighbor.x + " " + neighbor.y);
+                        BorderTiles.Add(TileManager.PosTileDict[neighbor]);
+                    }
+                }
+                catch (KeyNotFoundException)
+                {
+                    Debug.Log("Key not found: " + neighbor.x + " " + neighbor.y);
+                    throw;
+                }
+            }
+        }
+        return BorderTiles;
     }
 }

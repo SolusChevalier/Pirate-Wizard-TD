@@ -45,27 +45,27 @@ public static class MapUtils
         return x >= 0 && x < MapRepresentation.Width && y >= 0 && y < MapRepresentation.Height;
     }
 
-    public static List<int2> GetNeighbors(int x, int y)
+    public static List<CoordStruct> GetNeighbors(CoordStruct Coord)
     {
-        List<int2> neighbors = new List<int2>();
-        if (IsInMap(x, y + 1))
+        List<CoordStruct> neighbors = new List<CoordStruct>();
+        if (IsInMap(Coord.x, Coord.y + 1))
         {
-            int2 Up = new int2(x, y + 1);
+            CoordStruct Up = new CoordStruct(Coord.x, Coord.y + 1);
             neighbors.Add(Up);
         }
-        if (IsInMap(x + 1, y))
+        if (IsInMap(Coord.x + 1, Coord.y))
         {
-            int2 Right = new int2(x + 1, y);
+            CoordStruct Right = new CoordStruct(Coord.x + 1, Coord.y);
             neighbors.Add(Right);
         }
-        if (IsInMap(x, y - 1))
+        if (IsInMap(Coord.x, Coord.y - 1))
         {
-            int2 Down = new int2(x, y - 1);
+            CoordStruct Down = new CoordStruct(Coord.x, Coord.y - 1);
             neighbors.Add(Down);
         }
-        if (IsInMap(x - 1, y))
+        if (IsInMap(Coord.x - 1, Coord.y))
         {
-            int2 Left = new int2(x - 1, y);
+            CoordStruct Left = new CoordStruct(Coord.x - 1, Coord.y);
             neighbors.Add(Left);
         }
         return neighbors;

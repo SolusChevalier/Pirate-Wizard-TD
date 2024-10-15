@@ -236,4 +236,12 @@ public class BuildingTile : MonoBehaviour
         }
         return result;
     }
+
+    public BuildingTile Clone()
+    {
+        BuildingTile clone = Instantiate(this);
+        clone.properties = properties.Clone();
+        clone.placementPoint = placementPoint;
+        return clone;
+    }
 }
