@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameUIController : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class GameUIController : MonoBehaviour
     public int waveNumber = 0;
     public int enemiesLeft = 0;
     public int money = 0;
-    public GameObject MenuPnl, MenuBtnPnl, TimeControlPanel, EnemyPnl, EndPnl, tutPnl, UpgradeBtn, SellBtn, BuyGolemBtn, BuyMusketBtn, BuyCannonBtn;
+    public GameObject MenuPnl, MenuBtnPnl, TimeControlPanel, EnemyPnl, EndPnl, tutPnl, UpgradeBtn, SubUpgrade, SubSubUpgrade, SubUp1, SubUp2, SellBtn, BuyGolemBtn, BuyMusketBtn, BuyCannonBtn;
     public CanvasGroup canvasGroup;
     public float fadeTime = 3.0f;
     private bool isFading = false;
@@ -22,6 +23,8 @@ public class GameUIController : MonoBehaviour
     public TextMeshProUGUI waveNumberText;
     public TextMeshProUGUI moneyText;
     public TextMeshProUGUI EndText;
+    public TextMeshProUGUI upgradeCost, SellCost;
+    public Defender occupyingUnit;
 
     #endregion FIELDS
 
@@ -83,6 +86,9 @@ public class GameUIController : MonoBehaviour
             if (canvasGroup.alpha == 0)
             {
                 tutPnl.SetActive(false);
+                NarrativeManager.Instance.SartDialog();
+                //Debug.Log("Tutorial Panel Faded");
+                isFading = false;
             }
         }
     }
@@ -90,6 +96,10 @@ public class GameUIController : MonoBehaviour
     #endregion UNITY METHODS
 
     #region METHODS
+
+    public void onClickForNextDialog()
+    {
+    }
 
     public void UpdateWaveNumber(int waveNumber)
     {
@@ -114,6 +124,8 @@ public class GameUIController : MonoBehaviour
     private void OnGameStarted()
     {
         MenuBtnPnl.SetActive(false);
+        SubUpgrade.SetActive(false);
+        SubSubUpgrade.SetActive(false);
     }
 
     private void OnGameEnded()
@@ -143,9 +155,39 @@ public class GameUIController : MonoBehaviour
         EventManager.SellDefender?.Invoke(PlayerManager.selectedTile);
     }
 
-    public void OnUpgradeDefenderBtnClicked()
+    public void OnTowerUpgrade()
     {
-        EventManager.UpgradeDefender?.Invoke(PlayerManager.selectedTile);
+        SubSubUpgrade.SetActive(true);
+        SubUpgrade.SetActive(false);
+        UpgradeBtn.SetActive(false);
+        SellBtn.SetActive(false);
+    }
+
+    public void OnUpgradeDefBtnClicked()
+    {
+        if (!occupyingUnit.Upgraded)
+        {
+            SubUpgrade.SetActive(true);
+            UpgradeBtn.SetActive(false);
+            SellBtn.SetActive(false);
+            SubUp1.GetComponent<Image>().sprite = occupyingUnit.IconUpgrade1;
+            //SubUp1.GetComponent<Button>().onClick.AddListener(() => OnUpgradeDefenderBtnClicked(1));
+            SubUp2.GetComponent<Image>().sprite = occupyingUnit.IconUpgrade2;
+            //SubUp2.GetComponent<Button>().onClick.AddListener(() => OnUpgradeDefenderBtnClicked(2));
+        }
+    }
+
+    public void OnUpgradeTower(int num)
+    {
+        EventManager.UpgradeDefender?.Invoke(PlayerManager.selectedTile, num);
+        SubUpgrade.SetActive(false);
+        SubSubUpgrade.SetActive(false);
+    }
+
+    public void OnUpgradeDefenderBtnClicked(int num)
+    {
+        EventManager.UpgradeDefender?.Invoke(PlayerManager.selectedTile, num);
+        SubUpgrade.SetActive(false);
     }
 
     private void OnWaveCompleted()
@@ -168,7 +210,10 @@ public class GameUIController : MonoBehaviour
         if (tile.properties.OccupyingUnit != null)
         {
             UpgradeBtn.SetActive(true);
+            occupyingUnit = tile.properties.OccupyingUnit;
+            upgradeCost.text = occupyingUnit.UpgradeCost.ToString();
             SellBtn.SetActive(true);
+            SellCost.text = (occupyingUnit.cost / 2).ToString();
             BuyGolemBtn.SetActive(false);
             BuyMusketBtn.SetActive(false);
             BuyCannonBtn.SetActive(false);
@@ -176,6 +221,7 @@ public class GameUIController : MonoBehaviour
         else
         {
             UpgradeBtn.SetActive(false);
+            occupyingUnit = null;
             SellBtn.SetActive(false);
             BuyGolemBtn.SetActive(true);
             BuyMusketBtn.SetActive(true);
@@ -187,6 +233,7 @@ public class GameUIController : MonoBehaviour
     {
         MenuBtnPnl.SetActive(false);
         MenuPnl.SetActive(false);
+        SubUpgrade.SetActive(false);
     }
 
     public void PlayBtnClicked()

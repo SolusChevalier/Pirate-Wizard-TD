@@ -103,7 +103,7 @@ public class EnemyManager : MonoBehaviour
 
     private IEnumerator SpawnWave()
     {
-        Debug.Log("Spawning Wave");
+        /*Debug.Log("Spawning Wave");
         SpawnList spawnList1 = aiManager.MakeMove(MapRepresentation.BorderPath1);
         Debug.Log("SpawnList1: " + spawnList1.EnemySpawns.Count);
         SpawnList spawnList2 = aiManager.MakeMove(MapRepresentation.BorderPath2);
@@ -157,8 +157,8 @@ public class EnemyManager : MonoBehaviour
                 SpawnEnemy(TrollPrefab, _Spawn3, _Destination3);
             }
             yield return new WaitForSeconds(0.5f);
-        }
-        /*for (int i = 0; i < NumEnemies; i++)
+        }*/
+        for (int i = 0; i < NumEnemies; i++)
         {
             //Debug.Log("Spawning Enemy" + NumEnemies);
             int rand = UnityEngine.Random.Range(1, 4);
@@ -179,7 +179,7 @@ public class EnemyManager : MonoBehaviour
             }
 
             yield return new WaitForSeconds(3);
-        }*/
+        }
     }
 
     #endregion METHODS

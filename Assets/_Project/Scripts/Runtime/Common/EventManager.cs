@@ -26,5 +26,6 @@ public static class EventManager
     public static Action FastBtnClicked;
     public static Action<BuildingTile, int> BuyDefender;
     public static Action<BuildingTile> SellDefender;
-    public static Action<BuildingTile> UpgradeDefender;
+    public static Action<BuildingTile, int> UpgradeDefender;
+    public static Action<int> UpgradeTower;
 }

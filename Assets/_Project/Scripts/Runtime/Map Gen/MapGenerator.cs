@@ -109,6 +109,8 @@ public class MapGenerator : MonoBehaviour
                     newTile.transform.parent = TowerParent.transform;
                     PlayerManager.TowerCenter = newT.TopSpawnPoint;
                     PlayerManager.TowerObject = newTile;
+                    PlayerManager.Upgrade1 = TowerObj.GetComponent<UpgradeGameObjects>().Upgrade1;
+                    PlayerManager.Upgrade2 = TowerObj.GetComponent<UpgradeGameObjects>().Upgrade2;
                 }
                 else if (_intMapRep[x, y] == (int)TileType.Grass)
                 {

@@ -186,11 +186,11 @@ public class BuildingTile : MonoBehaviour
         properties.Occupied = false;
     }
 
-    public void UpgradeDefender()//upgrades a unit
+    public void UpgradeDefender(int num)//upgrades a unit
     {
         if (properties.OccupyingUnit == null)
             return;
-        properties.OccupyingUnit.OnUpgrade();
+        properties.OccupyingUnit.OnUpgrade(num);
     }
 
     public void Select()//sellects tile

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using Unity.VisualScripting;
+using UnityEditor.Rendering.Universal;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -20,10 +22,15 @@ public class Defender : MonoBehaviour
     public UnityEngine.Color[] Colours;
     public int UpgradeCost = 30;
     public List<Enemy> EnemyTarget = new List<Enemy>();
+    public GameObject CurrentUpgrade, Upgrade1, Upgrade2;
+    public bool Upgraded = false;
+    public Sprite IconUpgrade1, IconUpgrade2;
 
     [Header("Attack Settings")]
     public bool ProjectileAttackType = false;
 
+    public bool FaceEnemy = true;
+    public ParticleSystem UpgradeParticles;
     public Enemy CurrentlyAttacking;
     public GameObject projectile;
     public Transform muzzelOrigin;
@@ -38,14 +45,7 @@ public class Defender : MonoBehaviour
 
     private void Awake()
     {
-        meshRenderer = this.gameObject.GetComponentInChildren<MeshRenderer>();
-        Colours = new UnityEngine.Color[meshRenderer.materials.Length];
-        int i = 0;
-        foreach (var mat in meshRenderer.materials)
-        {
-            Colours[i] = mat.color;
-            i++;
-        }
+        GetColours();
     }
 
     private void OnEnable()
@@ -89,7 +89,8 @@ public class Defender : MonoBehaviour
         else
         {
             CurrentlyAttacking = GetNextTarget();
-            RotateTowardsAttacker();
+            if (FaceEnemy)
+                RotateTowardsAttacker();
         }
     }
 
@@ -137,12 +138,68 @@ public class Defender : MonoBehaviour
         return en;
     }
 
-    public void OnUpgrade()
+    public void OnUpgrade1()
     {
-        attackDamage *= 3;
-        MaxHealth *= 3;
-        Health = MaxHealth;
-        UpgradeCost *= 3;
+        UpgradeParticles.Play();
+
+        if (!Upgraded)
+        {
+            CurrentUpgrade.SetActive(false);
+            Upgrade1.SetActive(true);
+            Upgraded = true;
+        }
+    }
+
+    public void OnUpgrade2()
+    {
+        UpgradeParticles.Play();
+
+        if (Upgraded)
+        {
+            Upgrade1.SetActive(false);
+            Upgrade2.SetActive(true);
+            Upgraded = false;
+        }
+    }
+
+    public void OnUpgrade(int num)
+    {
+        UpgradeParticles.Play();
+        if (!Upgraded)
+        {
+            CurrentUpgrade.SetActive(false);
+            if (num == 1)
+            {
+                Upgrade1.SetActive(true);
+                attackDamage *= 3;
+                MaxHealth *= 3;
+                Health = MaxHealth;
+                UpgradeCost *= 3;
+                Upgraded = true;
+            }
+            else if (num == 2)
+            {
+                Upgrade2.SetActive(true);
+                attackDamage *= 5;
+                MaxHealth *= 5;
+                Health = MaxHealth;
+                UpgradeCost *= 5;
+                Upgraded = true;
+            }
+        }
+    }
+
+    public void GetColours()
+    {
+        meshRenderer = this.CurrentUpgrade.GetComponentInChildren<MeshRenderer>();
+        Colours = new UnityEngine.Color[meshRenderer.materials.Length];
+        UpgradeParticles.Stop();
+        int i = 0;
+        foreach (var mat in meshRenderer.materials)
+        {
+            Colours[i] = mat.color;
+            i++;
+        }
     }
 
     private bool CanAttackEnemy(Enemy enemyTarget)
@@ -185,6 +242,7 @@ public class Defender : MonoBehaviour
 
     private IEnumerator MaterialChange()
     {
+        GetColours();
         var mats = this.gameObject.GetComponentInChildren<MeshRenderer>().materials;
         int i = 0;
         foreach (var mat in mats)

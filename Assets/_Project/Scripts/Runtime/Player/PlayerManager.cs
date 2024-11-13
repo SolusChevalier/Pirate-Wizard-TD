@@ -9,10 +9,15 @@ public class PlayerManager : MonoBehaviour
     public int MaxTowerHealth;
     public int TowerHealth;
     public int Money;
+    public int UpgradeCost = 50;
     public static Transform TowerCenter;
     public static BuildingTile selectedTile;
     public GameObject GolemDefenderPrefab, GunDefenderPrefab, CanonDefenderPrefab;
     public static GameObject TowerObject;
+    public static GameObject Upgrade1, Upgrade2;
+    public Sprite IconUpgrade1, IconUpgrade2;
+    public static Sprite Icon1, Icon2;
+    public bool Upgraded = false;
     public static List<Defender> defenders = new List<Defender>();
     private bool EvenOdd => ((MapRepresentation.Width % 2) == 0);
     private int EvenOddMultiplier => EvenOdd ? 1 : 2;
@@ -45,6 +50,15 @@ public class PlayerManager : MonoBehaviour
         {
             CurrentlyAttacking = GetNextTarget();
         }
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 1000))
+        {
+            if (hit.collider.gameObject.tag == "Tower")
+            {
+                TowerCenter = hit.collider.transform;
+            }
+        }
     }
 
     private void Start()
@@ -53,19 +67,8 @@ public class PlayerManager : MonoBehaviour
         updateMoneyUI();
         TowerHealth = MaxTowerHealth;
         attackRange *= EvenOddMultiplier;
-    }
-
-    private void OnMap()
-    {
-        meshRenderer = TowerObject.GetComponentInChildren<MeshRenderer>();
-        //Debug.Log(meshRenderer.materials.Length);
-        Colours = new UnityEngine.Color[meshRenderer.materials.Length];
-        int i = 0;
-        foreach (var mat in meshRenderer.materials)
-        {
-            Colours[i] = mat.color;
-            i++;
-        }
+        Icon1 = IconUpgrade1;
+        Icon2 = IconUpgrade2;
     }
 
     private void OnEnable()
@@ -79,7 +82,8 @@ public class PlayerManager : MonoBehaviour
         EventManager.BuyDefender += BuyDefender;
         EventManager.SellDefender += SellDefender;
         EventManager.UpgradeDefender += UpgradeDefender;
-        EventManager.OnMapGenerated += OnMap;
+        EventManager.OnMapGenerated += GetColours;
+        EventManager.UpgradeTower += UpgradeTower;
     }
 
     private void OnDisable()
@@ -93,7 +97,8 @@ public class PlayerManager : MonoBehaviour
         EventManager.BuyDefender -= BuyDefender;
         EventManager.SellDefender -= SellDefender;
         EventManager.UpgradeDefender -= UpgradeDefender;
-        EventManager.OnMapGenerated -= OnMap;
+        EventManager.OnMapGenerated -= GetColours;
+        EventManager.UpgradeTower -= UpgradeTower;
     }
 
     #endregion UNITY METHODS
@@ -156,6 +161,18 @@ public class PlayerManager : MonoBehaviour
         return en;
     }
 
+    public void GetColours()
+    {
+        meshRenderer = TowerObject.GetComponentInChildren<MeshRenderer>();
+        Colours = new UnityEngine.Color[meshRenderer.materials.Length];
+        int i = 0;
+        foreach (var mat in meshRenderer.materials)
+        {
+            Colours[i] = mat.color;
+            i++;
+        }
+    }
+
     public void BuyDefender(BuildingTile tile, int DefenderType)
     {
         if (tile.properties.Occupied) return;
@@ -201,13 +218,37 @@ public class PlayerManager : MonoBehaviour
         tile.SellDefender();
     }
 
-    public void UpgradeDefender(BuildingTile tile)
+    public void UpgradeTower(int num)
+    {
+        if (Money >= UpgradeCost)
+        {
+            RemoveMoney(UpgradeCost);
+
+            //TowerObject.SetActive(false);
+            if (num == 1)
+            {
+                Upgrade1.SetActive(true);
+                attackDamage *= 3;
+                TowerHealth = MaxTowerHealth;
+                UpgradeCost *= 2;
+            }
+            else if (num == 2)
+            {
+                Upgrade2.SetActive(true);
+                MaxTowerHealth *= 5;
+                TowerHealth = MaxTowerHealth;
+                UpgradeCost *= 2;
+            }
+        }
+    }
+
+    public void UpgradeDefender(BuildingTile tile, int num)
     {
         if (!tile.properties.Occupied) return;
         if (Money >= GolemDefenderPrefab.GetComponent<Defender>().UpgradeCost)
         {
             RemoveMoney(GolemDefenderPrefab.GetComponent<Defender>().UpgradeCost);
-            tile.UpgradeDefender();
+            tile.UpgradeDefender(num);
         }
     }
 
